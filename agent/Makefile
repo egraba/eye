@@ -1,0 +1,25 @@
+# Makefile
+
+# Compiler configuration
+CC=clang
+CFLAGS=-W -Wall
+
+# Project configuration
+EXEC=eye
+SRC=$(wildcard *.c)
+OBJ=$(SRC:.c=.o)
+
+# Directives
+all: $(EXEC)
+
+eye: $(OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+%.o: %.c
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+.PHONY: clean
+
+clean:
+	rm -f *.o
+	rm -f $(EXEC)
