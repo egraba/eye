@@ -11,6 +11,7 @@
 #define CURSOR_POS(row, col) printf("\033[%d;%dH", row, col)
 
 #define PERCENT(x, y) (double) x / (double) y * 100
+#define TRANSMIT_KB(x) (double) x / 1024 
 
 static void
 setTtyScreen(struct winsize *ws)
@@ -66,8 +67,8 @@ displayUsage(int row)
 		printf("Free memory:      %2.1f %%\n", PERCENT(mem.free,mem.total));
 		printf("Swap:             %2.1f %%\n", PERCENT(mem.swapUsed, mem.swapTotal));
 		printf("Network: rec %2.1f KB | trans %2.1f KB\n",
-		       (double) net.received / 1024,
-		       (double) net.transmitted / 1024);
+		       TRANSMIT_KB(net.received),
+		       TRANSMIT_KB(net.transmitted));
 		printf("I/O: %lu requests\n", io.progress);
 		printf("Disk:\n");
 		sleep(2);
