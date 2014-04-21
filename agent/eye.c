@@ -51,6 +51,7 @@ displayUsage(int row)
 	cpuUsage cpu;
 	memoryUsage mem;
 	networkUsage net;
+	ioUsage io;
 
 	for (;;) {
 		CURSOR_POS(row, 1);
@@ -58,15 +59,16 @@ displayUsage(int row)
 		getCpuUsage(&cpu);
 		getMemoryUsage(&mem);
 		getNetworkUsage(&net);
-		printf("CPU (%%):              %2.1f\n", PERCENT(cpu.used, cpu.total));
-		printf("Active memory (%%):    %2.1f\n", PERCENT(mem.active, mem.total));
-		printf("Inactive memory (%%):  %2.1f\n", PERCENT(mem.inactive, mem.total));
-		printf("Free memory (%%):      %2.1f\n", PERCENT(mem.free,mem.total));
-		printf("Swap (%%):             %2.1f\n", PERCENT(mem.swapUsed, mem.swapTotal));
+		getIoUsage(&io);
+		printf("CPU:              %2.1f %%\n", PERCENT(cpu.used, cpu.total));
+		printf("Active memory:    %2.1f %%\n", PERCENT(mem.active, mem.total));
+		printf("Inactive memory:  %2.1f %%\n", PERCENT(mem.inactive, mem.total));
+		printf("Free memory:      %2.1f %%\n", PERCENT(mem.free,mem.total));
+		printf("Swap:             %2.1f %%\n", PERCENT(mem.swapUsed, mem.swapTotal));
 		printf("Network: rec %2.1f KB | trans %2.1f KB\n",
 		       (double) net.received / 1024,
 		       (double) net.transmitted / 1024);
-		printf("I/O:\n");
+		printf("I/O: %lu requests\n", io.progress);
 		printf("Disk:\n");
 		sleep(2);
 	}

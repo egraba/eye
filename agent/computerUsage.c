@@ -1,27 +1,22 @@
 #include "computerUsage.h"
 
-static void refresh(void *elemA, void *elemB, int elemSize, int nbElems)
+static void
+refresh(void *elemA, void *elemB, int elemSize, int nbElems)
 {
 	void *temp[nbElems * elemSize];
 
 	memcpy(temp, elemA, nbElems * elemSize);
 	for (int i = 0; i < nbElems; i++) {
-		*((int *) elemA + i * elemSize / 4) -= *((int *) elemB + i * elemSize / 4);
+		*((int *) elemA + i * elemSize / sizeof(int)) -= *((int *) elemB + i * elemSize / sizeof(int));
 	}
 	memcpy(elemB, temp, nbElems * elemSize);
 }
 
-/*
- * Gets CPU usage
- *
- * Retrieves information from /proc/stat.
- */
 int
 getCpuUsage(cpuUsage *usage)
 {
 	FILE *statsFile;
 	char fileBuffer[FILE_BUFFER_SIZE];
-	unsigned long tempCpu[CPU_STATES];
 
 	int rc = RC_CPU_READING_ERROR;
 	statsFile = fopen("/proc/stat", "r");
@@ -50,11 +45,6 @@ getCpuUsage(cpuUsage *usage)
 	return rc;
 }
 
-/*
- * Gets memory usage
- *
- * Retrieves information from /proc/meminfo.
- */
 int
 getMemoryUsage(memoryUsage *usage)
 {
@@ -106,34 +96,22 @@ getNetworkUsage(networkUsage *usage)
 	FILE *networkFile;
 	char fileBuffer[FILE_BUFFER_SIZE];
 	char *line;
-	unsigned long tempNet[2];
 	unsigned long rfu;
 
 	int rc = RC_NET_READING_ERROR;
 	networkFile = fopen("/proc/net/dev", "r");
 	if (networkFile != NULL) {
-		while(fgets(fileBuffer, FILE_BUFFER_SIZE, networkFile) != NULL) {
+		while (fgets(fileBuffer, FILE_BUFFER_SIZE, networkFile) != NULL) {
 			line = strstr(fileBuffer, "eth0:");
 			if (line != NULL) {
 				sscanf(line,
 				       "eth0: %lu %lu %lu %lu %lu %lu %lu %lu %lu",
 				       curNet,
-				       &rfu,
-				       &rfu,
-				       &rfu,
-				       &rfu,
-				       &rfu,
-				       &rfu,
-				       &rfu,
+				       &rfu, &rfu, &rfu, &rfu, &rfu, &rfu,&rfu,
 				       curNet + 1);
 				usage->received = 0;
 				usage->transmitted = 0;
 				refresh(&curNet, &prevNet, sizeof(unsigned long), 2);
-				/*for (int i = 0; i < 2; i++) {
-				  tempNet[i] = curNet[i];
-				  curNet[i] -= prevNet[i];
-				  prevNet[i] = tempNet[i];
-				  }*/
 				usage->received += *curNet;
 				usage->transmitted += *(curNet + 1);
 			}
@@ -147,7 +125,29 @@ getNetworkUsage(networkUsage *usage)
 int
 getIoUsage(ioUsage *usage)
 {
-	return 0;
+	FILE *ioFile;
+	char fileBuffer[FILE_BUFFER_SIZE];
+	char *line;
+	unsigned long rfu;
+
+	int rc = RC_IO_READING_ERROR;
+	ioFile = fopen("/proc/diskstats", "r");
+	if (ioFile != NULL) {
+		while (fgets(fileBuffer, FILE_BUFFER_SIZE, ioFile) != NULL) {
+			line = strstr(fileBuffer, "sda");
+			if (line != NULL) {
+				sscanf(line,
+				       "sda %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu",
+				       &rfu, &rfu, &rfu, &rfu, &rfu, &rfu, &rfu, &rfu,
+				       &usage->progress,
+				       &rfu, &rfu);
+				break;
+			}
+		}
+		fclose(ioFile);
+		rc = RC_IO_OK;
+	}
+	return rc;
 }
 
 int

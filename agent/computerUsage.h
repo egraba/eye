@@ -16,6 +16,9 @@
 #define RC_NET_OK 0
 #define RC_NET_READING_ERROR -1
 
+#define RC_IO_OK 0
+#define RC_IO_READING_ERROR -1
+
 unsigned long curCpu[CPU_STATES];
 unsigned long prevCpu[CPU_STATES];
 
@@ -52,6 +55,7 @@ typedef struct {
 } networkUsage;
 
 typedef struct {
+	unsigned long progress;
 } ioUsage;
 
 typedef struct {
