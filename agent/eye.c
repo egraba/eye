@@ -122,7 +122,43 @@ standaloneMode()
 static void
 connectedMode()
 {
+	computer info;
+	cpuUsage cpu;
+	memoryUsage mem;
+	networkUsage net;
+	ioUsage io;
 
+	char data[500];
+
+	collectInfo(&info);
+	
+	sprintf(data,
+		"{computerInfo:{osType:\"%s\",osRelease:\"%s\",arch:\"%s\",cpuName:\"%s\",totalMem:\"%d\"}}",
+		info.osName, info.osRelease, info.osArch, info.cpuName, info.memorySize); 
+	printf("%s\n", data);
+
+	sprintf(data,
+		"{networkInfo:{mac:\"%s\",ipv4:\"%s\",ipv6:\"%s\"}}",
+		info.macAddress, info.ipv4Address, info.ipv6Address); 
+	printf("%s\n", data);
+
+
+	for (;;) {
+		getCpuUsage(&cpu);
+		getMemoryUsage(&mem);
+		getNetworkUsage(&net);
+		getIoUsage(&io);	
+
+		sprintf(data,
+			"{usage:{cpu:{used:%lu,total:%lu},{mem:{active:%lu,inactive:%lu,free:%lu,total:%lu},swap:{used:%lu,total:%lu}},io:%lu}}",
+			cpu.used, cpu.total,
+			mem.active, mem.inactive, mem.free, mem.total,
+			mem.swapUsed, mem.swapTotal,
+			io.progress);
+		printf("%s\n", data);
+		sleep(2);
+	}
+	
 }
 
 static void
