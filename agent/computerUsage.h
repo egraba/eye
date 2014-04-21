@@ -66,6 +66,5 @@ int getCpuUsage(cpuUsage *usage);
 int getMemoryUsage(memoryUsage *usage);
 int getNetworkUsage(networkUsage *usage);
 int getIoUsage(ioUsage *usage);
-int getDiskUsage(diskUsage *usage);
 
 #endif

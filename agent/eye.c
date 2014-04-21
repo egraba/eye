@@ -70,7 +70,6 @@ displayUsage(int row)
 		       TRANSMIT_KB(net.received),
 		       TRANSMIT_KB(net.transmitted));
 		printf("I/O: %lu requests\n", io.progress);
-		printf("Disk:\n");
 		sleep(2);
 	}
 }

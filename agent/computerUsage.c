@@ -149,9 +149,3 @@ getIoUsage(ioUsage *usage)
 	}
 	return rc;
 }
-
-int
-getDiskUsage(diskUsage *usage)
-{
-	return 0;
-}
