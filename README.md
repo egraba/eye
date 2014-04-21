@@ -7,3 +7,9 @@ Main components
 ---------------
 - eye master: server collecting all data from registered systems.
 - eye agent: agent collecting system date (CPU usage, RAM usage, etc.).
+
+Targeted OSes
+-------------
+- Linux
+- FreeBSD
+- MAC OS X, other BSDs (?)
