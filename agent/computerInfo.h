@@ -9,6 +9,17 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/utsname.h>
+
+#ifdef __FreeBSD__
+#include <math.h>
+#include <sys/sysctl.h>
+#define ETH_IF AF_LINK
+#endif
+
+#ifdef __linux__
+#define ETH_IF PF_PACKET
+#endif
 
 #define FILE_BUFFER_SIZE 512
 #define UNAME_ERROR -1

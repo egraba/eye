@@ -1,25 +1,27 @@
-# Makefile
+########################
+# Makefile for FreeBSD #
+########################
 
-# Compiler configuration
-CC=clang
-CFLAGS=-W -Wall
+# Compiler rules
+CC	= clang
+CFLAGS	= -Wall -pedantic
+LINKS	= -lm
 
-# Project configuration
-EXEC=eye
-SRC=$(wildcard *.c)
-OBJ=$(SRC:.c=.o)
+# Project settings
+EXEC	= eye
+SRC	= eye.c computerInfo.c computerUsage.c
+OBJS	= ${SRC:.c=.o}
 
 # Directives
-all: $(EXEC)
 
-eye: $(OBJ)
-	$(CC) -o $@ $^ $(LDFLAGS)
-
-%.o: %.c
-	$(CC) -o $@ -c $< $(CFLAGS)
-
-.PHONY: clean
+all: ${OBJS}
+	$(CC) $(CFLAGS) -o $(EXEC) ${OBJS} ${LINKS}
 
 clean:
-	rm -f *.o
 	rm -f $(EXEC)
+	rm -f *.o
+
+analyze:
+	$(CC) --analyze ${SRC}
+
+
