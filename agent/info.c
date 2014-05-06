@@ -96,11 +96,9 @@ getNetworkInfo(computer *pc)
 
 /*
  * TODO: Have a generic mechanism to deal with interfaces.
- * Keep WiFi?
  */
 	for (ifa = ifs; ifa != NULL; ifa = ifa->ifa_next) {
-		if ((!strcmp(ifa->ifa_name, "bge0")
-		     || !strcmp(ifa->ifa_name, "wlan0"))) {
+		if ((!strcmp(ifa->ifa_name, "bge0") {
 			if (ifa->ifa_addr->sa_family == ETH_IF) {
 				macAddr = (unsigned char*)((struct sockaddr*)ifa->ifa_addr->sa_data);
 				macAddr += 10;
