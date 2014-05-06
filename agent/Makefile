@@ -9,7 +9,7 @@ LINKS	= -lm
 
 # Project settings
 EXEC	= eye
-SRC	= eye.c computerInfo.c computerUsage.c
+SRC	= eye.c info.c usage.c
 OBJS	= ${SRC:.c=.o}
 
 # Directives

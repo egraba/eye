@@ -1,5 +1,5 @@
-#ifndef _COMPUTER_USAGE
-#define _COMPUTER_USAGE
+#ifndef _USAGE
+#define _USAGE
 
 #include <string.h>
 

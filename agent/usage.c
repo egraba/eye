@@ -1,4 +1,4 @@
-#include "computerUsage.h"
+#include "usage.h"
 
 static void
 refresh(void *elemA, void *elemB, int elemSize, int nbElems)

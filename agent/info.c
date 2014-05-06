@@ -1,4 +1,4 @@
-#include "computerInfo.h"
+#include "info.h"
 
 static void
 getOsInfo(computer *pc)

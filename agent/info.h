@@ -1,5 +1,5 @@
-#ifndef _COMPUTER_INFO
-#define _COMPUTER_INFO
+#ifndef _INFO
+#define _INFO
 
 #include <stdio.h>
 #include <stdlib.h>

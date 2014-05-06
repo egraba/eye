@@ -4,8 +4,8 @@
 #include <signal.h>
 #include <sys/ioctl.h>
 
-#include "computerInfo.h"
-#include "computerUsage.h"
+#include "info.h"
+#include "usage.h"
 
 #define CLEAR_SCREEN() printf("\033[2J")
 #define CURSOR_POS(row, col) printf("\033[%d;%dH", row, col)
