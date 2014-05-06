@@ -1,9 +1,20 @@
 #ifndef _COMPUTER_USAGE
 #define _COMPUTER_USAGE
 
-#include <stdio.h>
 #include <string.h>
 
+#ifdef __FreeBSD__
+#include <stdlib.h>
+#include <devstat.h>
+#include <sys/sysctl.h>
+#include <sys/vmmeter.h>
+#endif
+
+#ifdef __linux__
+#include <stdio.h>
+#endif
+
+#ifdef __linux__
 #define FILE_BUFFER_SIZE 512
 #define CPU_STATES 7
 
@@ -18,7 +29,14 @@
 
 #define RC_IO_OK 0
 #define RC_IO_READING_ERROR -1
+#endif
 
+#ifdef __FreeBSD__
+unsigned long curCpu[CPUSTATES];
+unsigned long prevCpu[CPUSTATES];
+#endif
+
+#ifdef __linux__
 unsigned long curCpu[CPU_STATES];
 unsigned long prevCpu[CPU_STATES];
 
@@ -31,6 +49,7 @@ enum cpuState {
 	IRQ,
 	SOFTIRQ
 };
+#endif
 
 typedef struct {
 	unsigned long used;
@@ -57,9 +76,6 @@ typedef struct {
 typedef struct {
 	unsigned long progress;
 } ioUsage;
-
-typedef struct {
-} diskUsage;
 
 /* Prototypes */
 int getCpuUsage(cpuUsage *usage);

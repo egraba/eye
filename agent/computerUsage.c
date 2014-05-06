@@ -15,6 +15,23 @@ refresh(void *elemA, void *elemB, int elemSize, int nbElems)
 int
 getCpuUsage(cpuUsage *usage)
 {
+#ifdef __FreeBSD__
+	size_t len;
+	
+	/*
+	 * TODO: Manage several processors.
+	 */
+	len = sizeof(curCpu);
+	sysctlbyname("kern.cp_times", curCpu, &len, NULL, 0);
+	refresh(&curCpu, &prevCpu, sizeof(unsigned long), CPUSTATES);
+	
+	usage->total = 0;
+	for (int i = 0; i < CPUSTATES; i++) {
+		usage->total += curCpu[i];
+	}
+	usage->used = usage->total - *(curCpu + CP_IDLE);
+#endif
+#ifdef __linux__
 	FILE *statsFile;
 	char fileBuffer[FILE_BUFFER_SIZE];
 
@@ -43,11 +60,31 @@ getCpuUsage(cpuUsage *usage)
 		rc = RC_CPU_OK;
 	}
 	return rc;
+#endif
 }
 
 int
 getMemoryUsage(memoryUsage *usage)
 {
+#ifdef __FreeBSD__
+	struct vmtotal mem;
+	size_t len;
+	int pageSize;
+	
+	len = sizeof(mem);
+	sysctlbyname("vm.vmtotal", &mem, &len, NULL, 0);
+	len = sizeof(pageSize);
+	sysctlbyname("vm.stats.vm.v_page_size", &pageSize, &len, NULL, 0);
+
+	printf("%d\n", mem.t_free * pageSize / 1024 / 1024);
+	printf("%d\n", mem.t_vm / 1024 / 1024 * 2);
+	printf("%d\n", mem.t_avm / 1024 / 9);
+	usage->total = mem.t_vm / 1024 / 1024 * 2;
+	usage->active = mem.t_avm / 1024 / 10;
+	usage->free = mem.t_free * pageSize / 1024 / 1024;
+	usage->inactive = usage->total - usage->active;
+#endif
+#ifdef __linux__
 	FILE *memoryFile;
 	char fileBuffer[FILE_BUFFER_SIZE];
 	char *line;
@@ -88,11 +125,13 @@ getMemoryUsage(memoryUsage *usage)
 		rc = RC_MEM_OK;
 	}
 	return rc;
+#endif
 }
 
 int
 getNetworkUsage(networkUsage *usage)
 {
+#ifdef __linux__
 	FILE *networkFile;
 	char fileBuffer[FILE_BUFFER_SIZE];
 	char *line;
@@ -120,11 +159,13 @@ getNetworkUsage(networkUsage *usage)
 		rc = RC_NET_OK;
 	}
 	return rc;
+#endif
 }
 
 int
 getIoUsage(ioUsage *usage)
 {
+#ifdef __linux__
 	FILE *ioFile;
 	char fileBuffer[FILE_BUFFER_SIZE];
 	char *line;
@@ -148,4 +189,5 @@ getIoUsage(ioUsage *usage)
 		rc = RC_IO_OK;
 	}
 	return rc;
+#endif
 }

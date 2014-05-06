@@ -64,7 +64,7 @@ displayUsage(int row)
 		printf("CPU:              %2.1f %%\n", PERCENT(cpu.used, cpu.total));
 		printf("Active memory:    %2.1f %%\n", PERCENT(mem.active, mem.total));
 		printf("Inactive memory:  %2.1f %%\n", PERCENT(mem.inactive, mem.total));
-		printf("Free memory:      %2.1f %%\n", PERCENT(mem.free,mem.total));
+		printf("Free memory:      %2.1f %%\n", PERCENT(mem.free, mem.total));
 		printf("Swap:             %2.1f %%\n", PERCENT(mem.swapUsed, mem.swapTotal));
 		printf("Network: rec %2.1f KB | trans %2.1f KB\n",
 		       TRANSMIT_KB(net.received),
