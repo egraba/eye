@@ -88,17 +88,25 @@ getNetworkInfo(computer *pc)
 	unsigned char *macAddr;
 	struct sockaddr_in *ipAddr;
 	struct sockaddr_in6 *ipAddr6;
+	char *ipIf;
 
 	macAddr = malloc(sizeof(struct sockaddr));
 	ipAddr = malloc(sizeof(struct sockaddr_in));
 	ipAddr6 = malloc(sizeof(struct sockaddr_in6));
 	getifaddrs(&ifs);
 
-/*
- * TODO: Have a generic mechanism to deal with interfaces.
- */
+#ifdef __FreeBSD__
+	/*
+	 * TODO: Have a generic mechanism to deal with interfaces.
+	 */
+	ipIf = strdup("bge0");
+#endif
+#ifdef __linux__
+	ipIf = strdup("eth0");
+#endif
+
 	for (ifa = ifs; ifa != NULL; ifa = ifa->ifa_next) {
-		if (!strcmp(ifa->ifa_name, "bge0")) {
+		if (!strcmp(ifa->ifa_name, ipIf)) {
 			if (ifa->ifa_addr->sa_family == ETH_IF) {
 				macAddr = (unsigned char*)((struct sockaddr*)ifa->ifa_addr->sa_data);
 				macAddr += 10;
