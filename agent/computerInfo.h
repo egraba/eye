@@ -21,7 +21,6 @@
 #define ETH_IF PF_PACKET
 #endif
 
-#define FILE_BUFFER_SIZE 512
 #define UNAME_ERROR -1
 #define MAC_ADDR_SIZE 18
 #define INFO_READING_OK 0

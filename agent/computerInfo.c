@@ -23,7 +23,7 @@ getCpuName(computer *pc)
 #endif
 #ifdef __linux__
 	FILE *cpuInfo;
-	char fileBuffer[FILE_BUFFER_SIZE];
+	char fileBuffer[BUFSIZ];
 	char *cpuNameLine;
 	int labelSize;
 
@@ -31,7 +31,7 @@ getCpuName(computer *pc)
 	cpuInfo = fopen("/proc/cpuinfo", "r");
 
 	if (cpuInfo != NULL) {
-		while(fgets(fileBuffer, FILE_BUFFER_SIZE, cpuInfo) != NULL) {
+		while(fgets(fileBuffer, BUFSIZ, cpuInfo) != NULL) {
 			cpuNameLine = strstr(fileBuffer, "model name\t:");
 			if (cpuNameLine != NULL) {
 				/* -1 is to remove '\n' */
@@ -57,7 +57,7 @@ getMemorySize(computer *pc)
 #endif
 #ifdef __linux__
 	FILE *memInfo;
-	char fileBuffer[FILE_BUFFER_SIZE];
+	char fileBuffer[BUFSIZ];
 	char *memSizeLine;
 	int memInKb;
 
@@ -65,7 +65,7 @@ getMemorySize(computer *pc)
 	memInfo = fopen("/proc/meminfo", "r");
 
 	if (memInfo != NULL) {
-		while(fgets(fileBuffer, FILE_BUFFER_SIZE, memInfo) != NULL) {
+		while(fgets(fileBuffer, BUFSIZ, memInfo) != NULL) {
 			memSizeLine = strstr(fileBuffer, "MemTotal:");
 
 			if (memSizeLine != NULL) {

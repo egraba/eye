@@ -33,12 +33,12 @@ getCpuUsage(cpuUsage *usage)
 #endif
 #ifdef __linux__
 	FILE *statsFile;
-	char fileBuffer[FILE_BUFFER_SIZE];
+	char fileBuffer[BUFSIZ];
 
 	int rc = RC_CPU_READING_ERROR;
 	statsFile = fopen("/proc/stat", "r");
 	if (statsFile != NULL) {
-		if (fgets(fileBuffer, FILE_BUFFER_SIZE, statsFile) != NULL) {
+		if (fgets(fileBuffer, BUFSIZ, statsFile) != NULL) {
 			sscanf(fileBuffer,
 			       "cpu %lu %lu %lu %lu %lu %lu %lu",
 			       curCpu + USER,
@@ -86,13 +86,13 @@ getMemoryUsage(memoryUsage *usage)
 #endif
 #ifdef __linux__
 	FILE *memoryFile;
-	char fileBuffer[FILE_BUFFER_SIZE];
+	char fileBuffer[BUFSIZ];
 	char *line;
 
 	int rc = RC_MEM_READING_ERROR;
 	memoryFile = fopen("/proc/meminfo", "r");
 	if (memoryFile != NULL) {
-		while (fgets(fileBuffer, FILE_BUFFER_SIZE, memoryFile) != NULL) {
+		while (fgets(fileBuffer, BUFSIZ, memoryFile) != NULL) {
 			line = strstr(fileBuffer, "MemFree:");
 			if (line != NULL) {
 				sscanf(line,"MemFree: %lu", &usage->free);
@@ -133,14 +133,14 @@ getNetworkUsage(networkUsage *usage)
 {
 #ifdef __linux__
 	FILE *networkFile;
-	char fileBuffer[FILE_BUFFER_SIZE];
+	char fileBuffer[BUFSIZ];
 	char *line;
 	unsigned long rfu;
 
 	int rc = RC_NET_READING_ERROR;
 	networkFile = fopen("/proc/net/dev", "r");
 	if (networkFile != NULL) {
-		while (fgets(fileBuffer, FILE_BUFFER_SIZE, networkFile) != NULL) {
+		while (fgets(fileBuffer, BUFSIZ, networkFile) != NULL) {
 			line = strstr(fileBuffer, "eth0:");
 			if (line != NULL) {
 				sscanf(line,
@@ -167,14 +167,14 @@ getIoUsage(ioUsage *usage)
 {
 #ifdef __linux__
 	FILE *ioFile;
-	char fileBuffer[FILE_BUFFER_SIZE];
+	char fileBuffer[BUFSIZ];
 	char *line;
 	unsigned long rfu;
 
 	int rc = RC_IO_READING_ERROR;
 	ioFile = fopen("/proc/diskstats", "r");
 	if (ioFile != NULL) {
-		while (fgets(fileBuffer, FILE_BUFFER_SIZE, ioFile) != NULL) {
+		while (fgets(fileBuffer, BUFSIZ, ioFile) != NULL) {
 			line = strstr(fileBuffer, "sda");
 			if (line != NULL) {
 				sscanf(line,

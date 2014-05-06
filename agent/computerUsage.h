@@ -15,7 +15,6 @@
 #endif
 
 #ifdef __linux__
-#define FILE_BUFFER_SIZE 512
 #define CPU_STATES 7
 
 #define RC_CPU_OK 0
