@@ -16,6 +16,9 @@
 #define PERCENT(x, y) (double) x / (double) y * 100
 #define TRANSMIT_KB(x) (double) x / 1024 
 
+/* Global variables */
+int soc;
+
 static void
 setTtyScreen(struct winsize *ws)
 {
@@ -78,7 +81,7 @@ displayUsage(int row)
 }
 
 static void
-terminate()
+terminateStandaloneMode()
 {
 	CLEAR_SCREEN();
 	CURSOR_POS(1, 1);
@@ -99,7 +102,7 @@ standaloneMode()
 		exit(EXIT_FAILURE);
 	}
 
-	signal(SIGINT, terminate);
+	signal(SIGINT, terminateStandaloneMode);
 	setTtyScreen(&ws);
 	printf("eye <0>, Press 'q' or ESC to quit\n");
 	
@@ -133,19 +136,28 @@ sendMessage(int soc, const char *message)
 	}
 }
 
+static void
+terminateConnectedMode()
+{
+	printf("Deconnection...");
+	close(soc);
+	exit(EXIT_SUCCESS);
+}
+
 /*
  * Connected execution
  */
 static void
 connectedMode()
 {
-	int soc;
 	struct sockaddr_in sa;
 
 	if ((soc = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("Socket error...");
 		exit(EXIT_FAILURE);
 	}
+
+	signal(SIGINT, terminateConnectedMode);
 
 	sa.sin_family = AF_INET;
 	sa.sin_port = htons(PORT);
