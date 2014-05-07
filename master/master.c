@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <time.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -10,23 +11,41 @@
 #define MAX_AGENTS 50
 #define PORT 1111
 
-static void
-receiveMessage(int clientSocket)
+/* Global variables */
+pid_t pid;
+int s, c;
+
+static int
+receiveMessage(int clientSocket, char *message)
 {
+	int r;
 	char data[BUFSIZ];
 	memset(data, 0, BUFSIZ);
-	if (recv(clientSocket, data, BUFSIZ, 0) < 0) {
+	r = recv(clientSocket, data, BUFSIZ, 0);
+	if (r < 0) {
 		perror("Couldn't read data from agent...");
+
 	} else {
 		printf("Received:\n");
 		printf("%s\n\n", data);
+		message = strdup(data);
 	}
+
+	return r;
+}
+
+static void
+terminate()
+{
+	printf("Closing existing connections...\n");
+	close(s);
+	close(c);
+	exit(EXIT_SUCCESS);
 }
 
 int
 main(void)
 {
-	register int s, c;
 	socklen_t len;
 	struct sockaddr_in sa;
 
@@ -35,8 +54,9 @@ main(void)
 		exit(EXIT_FAILURE);
 	}
 
-	bzero(&sa, sizeof sa);
+	signal(SIGINT, terminate);
 
+	bzero(&sa, sizeof sa);
 	sa.sin_family = AF_INET;
 	sa.sin_port   = htons(PORT);
 
@@ -55,23 +75,33 @@ main(void)
 
 		if ((c = accept(s, (struct sockaddr *)&sa, &len)) < 0) {
 			perror("Accept error...");
-			exit(EXIT_FAILURE);
-		}
+			close(c);
+			sleep(5);
+		
+		} else {
+			switch (pid = fork()) {
+			case 0:
+				break;
+			case -1:
+				perror("Fork error...");
+				exit(EXIT_FAILURE);
+				break;
+			default:
+				close(s);
+				exit(EXIT_SUCCESS);
+				break;
+			}
 
-		switch (fork()) {
-		case 0:
-			break;
-		case -1:
-			perror("Fork error...");
-			exit(EXIT_FAILURE);
-			break;
-		default:
-			close(s);
-			exit(EXIT_SUCCESS);
-			break;
+			char * message = NULL;
+			receiveMessage(c, message);
+			receiveMessage(c, message);
+			for (;;) {
+				int r;
+				r = receiveMessage(c, message);
+				if (r <= 0) {
+					break;
+				}
+			}
 		}
-
-		receiveMessage(c);
-		receiveMessage(c);
 	}
 }
