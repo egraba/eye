@@ -7,6 +7,9 @@
 #include "info.h"
 #include "usage.h"
 
+#define PORT 1111
+#define SERVER_IP "192.168.1.82"
+
 #define CLEAR_SCREEN() printf("\033[2J")
 #define CURSOR_POS(row, col) printf("\033[%d;%dH", row, col)
 
@@ -116,32 +119,62 @@ standaloneMode()
 	displayUsage(16);
 }
 
+static void
+sendMessage(int soc, const char *message)
+{
+	int msgSentLen;
+
+	printf("Sending:\n");
+	printf("%s\n", message);
+	msgSentLen = send(soc, message, strlen(message), 0);
+	printf("Message length: %d\n\n", msgSentLen);
+	if (msgSentLen == 0) {
+		perror("Message empty!\n");
+	}
+}
+
 /*
  * Connected execution
  */
 static void
 connectedMode()
 {
+	int soc;
+	struct sockaddr_in sa;
+
+	if ((soc = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+		perror("Socket error...");
+		exit(EXIT_FAILURE);
+	}
+
+	sa.sin_family = AF_INET;
+	sa.sin_port = htons(PORT);
+	inet_pton(sa.sin_family, SERVER_IP, &sa.sin_addr.s_addr);
+
+	if (connect(soc, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
+		perror("Connect error...");
+		exit(EXIT_FAILURE);
+	}
+
 	computer info;
 	cpuUsage cpu;
 	memoryUsage mem;
 	networkUsage net;
 	ioUsage io;
 
-	char data[500];
+	char data[BUFSIZ];
 
 	collectInfo(&info);
 	
 	sprintf(data,
-		"{computerInfo:{osType:\"%s\",osRelease:\"%s\",arch:\"%s\",cpuName:\"%s\",totalMem:\"%d\"}}",
+		"{computerInfo:{osType:\"%s\",osRelease:\"%s\",arch:\"%s\",cpuName:\"%s\",totalMem:%d}}",
 		info.osName, info.osRelease, info.osArch, info.cpuName, info.memorySize); 
-	printf("%s\n", data);
+	sendMessage(soc, data);
 
 	sprintf(data,
 		"{networkInfo:{mac:\"%s\",ipv4:\"%s\",ipv6:\"%s\"}}",
 		info.macAddress, info.ipv4Address, info.ipv6Address); 
-	printf("%s\n", data);
-
+	sendMessage(soc, data);
 
 	for (;;) {
 		getCpuUsage(&cpu);
@@ -155,7 +188,7 @@ connectedMode()
 			mem.active, mem.inactive, mem.free, mem.total,
 			mem.swapUsed, mem.swapTotal,
 			io.progress);
-		printf("%s\n", data);
+		sendMessage(soc, data);
 		sleep(2);
 	}
 	

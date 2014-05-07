@@ -76,9 +76,6 @@ getMemoryUsage(memoryUsage *usage)
 	len = sizeof(pageSize);
 	sysctlbyname("vm.stats.vm.v_page_size", &pageSize, &len, NULL, 0);
 
-	printf("%d\n", mem.t_free * pageSize / 1024 / 1024);
-	printf("%d\n", mem.t_vm / 1024 / 1024 * 2);
-	printf("%d\n", mem.t_avm / 1024 / 9);
 	usage->total = mem.t_vm / 1024 / 1024 * 2;
 	usage->active = mem.t_avm / 1024 / 10;
 	usage->free = mem.t_free * pageSize / 1024 / 1024;
@@ -131,6 +128,9 @@ getMemoryUsage(memoryUsage *usage)
 int
 getNetworkUsage(networkUsage *usage)
 {
+#ifdef __FreeBSD__
+
+#endif
 #ifdef __linux__
 	FILE *networkFile;
 	char fileBuffer[BUFSIZ];
@@ -165,6 +165,9 @@ getNetworkUsage(networkUsage *usage)
 int
 getIoUsage(ioUsage *usage)
 {
+#ifdef __FreeBSD__
+
+#endif
 #ifdef __linux__
 	FILE *ioFile;
 	char fileBuffer[BUFSIZ];
