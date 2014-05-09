@@ -4,12 +4,13 @@
 
 # Compiler rules
 CC	= clang
-CFLAGS	= -Wall -pedantic
-LINKS	= -Lyajl
+CFLAGS	= -Wall -pedantic ${INCLUDES}
+INCLUDES= -I/usr/local/include
+LINKS	= -L/usr/local/lib -lyajl
 
 # Project settings
 EXEC	= master
-SRC	= master.c
+SRC	= master.c jsonParser.c
 OBJS	= ${SRC:.c=.o}
 
 # Directives

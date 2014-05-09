@@ -8,6 +8,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#include "jsonParser.h"
+
 #define MAX_AGENTS 50
 #define PORT 1111
 
@@ -94,6 +96,7 @@ main(void)
 
 			char * message = NULL;
 			receiveMessage(c, message);
+			parse(message);
 			receiveMessage(c, message);
 			for (;;) {
 				int r;
