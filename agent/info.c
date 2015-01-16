@@ -16,7 +16,7 @@ get_os_info(computer *pc)
 static void
 get_cpu_name(computer *pc)
 {
-#ifdef __FreeBSD__
+#ifdef BSD
 	pc->cpu_name = malloc(BUFSIZ);
 	size_t len = BUFSIZ;
 	sysctlbyname("hw.model", pc->cpu_name, &len, NULL, 0);
@@ -48,7 +48,7 @@ get_cpu_name(computer *pc)
 static void
 get_memory_size(computer *pc)
 {
-#ifdef __FreeBSD__
+#ifdef BSD
 	int *physMem = malloc(sizeof(int));
 	size_t len = sizeof(phys_mem);
 
@@ -95,7 +95,7 @@ get_network_info(computer *pc)
 	ip_addr6 = malloc(sizeof(struct sockaddr_in6));
 	getifaddrs(&ifs);
 
-#ifdef __FreeBSD__
+#ifdef BSD
 	/*
 	 * TODO: Have a generic mechanism to deal with interfaces.
 	 */

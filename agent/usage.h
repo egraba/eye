@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-#ifdef __FreeBSD__
+#ifdef BSD
 #include <stdlib.h>
 #include <devstat.h>
 #include <sys/sysctl.h>
@@ -30,7 +30,7 @@
 #define RC_IO_READING_ERROR -1
 #endif
 
-#ifdef __FreeBSD__
+#ifdef BSD
 unsigned long curCpu[CPUSTATES];
 unsigned long prevCpu[CPUSTATES];
 #endif

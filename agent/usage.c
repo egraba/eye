@@ -15,7 +15,7 @@ refresh(void *elemA, void *elemB, int elemSize, int nbElems)
 int
 get_cpu_usage(cpu_usage *usage)
 {
-#ifdef __FreeBSD__
+#ifdef BSD
 	size_t len;
 	
 	/*
@@ -66,7 +66,7 @@ get_cpu_usage(cpu_usage *usage)
 int
 get_memory_usage(memory_usage *usage)
 {
-#ifdef __FreeBSD__
+#ifdef BSD
 	struct vmtotal mem;
 	size_t len;
 	int page_size;
@@ -128,7 +128,7 @@ get_memory_usage(memory_usage *usage)
 int
 get_network_usage(network_usage *usage)
 {
-#ifdef __FreeBSD__
+#ifdef BSD
 
 #endif
 #ifdef __linux__
@@ -165,7 +165,7 @@ get_network_usage(network_usage *usage)
 int
 get_io_usage(io_usage *usage)
 {
-#ifdef __FreeBSD__
+#ifdef BSD
 
 #endif
 #ifdef __linux__

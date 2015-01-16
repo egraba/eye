@@ -11,13 +11,7 @@
 #include <sys/types.h>
 #include <sys/utsname.h>
 
-#ifdef __FreeBSD__
-#include <math.h>
-#include <sys/sysctl.h>
-#define ETH_IF AF_LINK
-#endif
-
-#ifdef __OpenBSD__
+#ifdef BSD
 #include <math.h>
 #include <sys/sysctl.h>
 #define ETH_IF AF_LINK
