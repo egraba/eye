@@ -20,6 +20,7 @@ all: ${OBJS}
 clean:
 	rm -f $(EXEC)
 	rm -f *.o
+	rm -f *~
 
 analyze:
 	$(CC) --analyze ${SRC}

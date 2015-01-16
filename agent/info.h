@@ -17,6 +17,12 @@
 #define ETH_IF AF_LINK
 #endif
 
+#ifdef __OpenBSD__
+#include <math.h>
+#include <sys/sysctl.h>
+#define ETH_IF AF_LINK
+#endif
+
 #ifdef __linux__
 #define ETH_IF PF_PACKET
 #endif
