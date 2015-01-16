@@ -33,17 +33,17 @@
 #define INFO_READING_ERROR -1
 
 typedef struct {
-	char *osName;
-	char *osRelease;
-	char *osArch;
-	char *cpuName;
-	int memorySize;
-	char macAddress[MAC_ADDR_SIZE];
-	char ipv4Address[INET_ADDRSTRLEN];
-	char ipv6Address[INET6_ADDRSTRLEN];
+	char *os_name;
+	char *os_release;
+	char *os_arch;
+	char *cpu_name;
+	int memory_size;
+	char mac_address[MAC_ADDR_SIZE];
+	char ipv4_address[INET_ADDRSTRLEN];
+	char ipv6_address[INET6_ADDRSTRLEN];
 } computer;
 
 /* Prototypes */
-int collectInfo(computer *info);
+int collect_info(computer *info);
 
 #endif
