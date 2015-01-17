@@ -1,18 +1,5 @@
 #include "usage.h"
 
-static void
-refresh(void *elemA, void *elemB, int elemSize, int nbElems)
-{
-/*	void *temp[nbElems * elemSize];
-
-	memcpy(temp, elemA, nbElems * elemSize);
-	for (int i = 0; i < nbElems; i++) {
-		*((int *) elemA + i * elemSize / sizeof(int)) -= *((int *) elemB + i * elemSize / sizeof(int));
-	}
-	memcpy(elemB, temp, nbElems * elemSize);
-*/
-}
-
 int
 get_cpu_usage(cpu_usage *cu)
 {
@@ -45,21 +32,31 @@ get_cpu_usage(cpu_usage *cu)
 }
 
 int
-get_memory_usage(memory_usage *usage)
+get_memory_usage(memory_usage *mu)
 {
-	/*struct vmtotal mem;
+	int rc;
+	int mib[2];
+	struct vmtotal mem;
 	size_t len;
 	int page_size;
 	
+	mib[0] = CTL_VM;
+	mib[1] = VM_METER;
 	len = sizeof(mem);
-	sysctlbyname("vm.vmtotal", &mem, &len, NULL, 0);
-	len = sizeof(page_size);
-	sysctlbyname("vm.stats.vm.v_page_size", &page_size, &len, NULL, 0);
+	rc = sysctl(mib, 2, &mem, &len, NULL, 0);
+/*	len = sizeof(page_size);
+	rc = sysctlbyname("vm.stats.vm.v_page_size", &page_size, &len, NULL, 0);
 
 	usage->total = mem.t_vm / 1024 / 1024 * 2;
 	usage->active = mem.t_avm / 1024 / 10;
 	usage->free = mem.t_free * page_size / 1024 / 1024;
 	usage->inactive = usage->total - usage->active;*/
+
+	mu->vm_active = mem.t_avm;
+	mu->vm_total = mem.t_vm;
+	mu->free = mem.t_free;
+
+	return (rc);
 }
 
 int

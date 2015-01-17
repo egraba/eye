@@ -60,17 +60,16 @@ display_usage(int row)
 
 	for (;;) {
 		unsigned long cu_total;
+		unsigned long mu_total;
 
 		CURSOR_POS(row, 1);
 		printf("\033[J");
 
 		get_cpu_usage(&cu);
-		/*get_memory_usage(&mem);
-		get_network_usage(&net);
-		get_io_usage(&io);*/
+		/*get_network_usage(&nu);
+		get_io_usage(&iu);*/
 
 		cu_total = cu.user + cu.nice + cu.sys + cu.intr + cu.idle;
-
 		printf("CPU: %2.1f%% %2.1f%% %2.1f%% %2.1f%% %2.1f%%\n",
 		       PERCENT(cu.user, cu_total),
 		       PERCENT(cu.nice, cu_total),
@@ -78,8 +77,14 @@ display_usage(int row)
 		       PERCENT(cu.intr, cu_total),
 		       PERCENT(cu.idle, cu_total));
 
-		/*printf("CPU:              %2.1f %%\n", PERCENT(cpu.used, cpu.total));
-		printf("Active memory:    %2.1f %%\n", PERCENT(mem.active, mem.total));
+		get_memory_usage(&mu);
+		mu_total = mu.vm_active + mu.vm_total + mu.free;
+		printf("Memory: %2.1f%% %2.1f%% %2.1f%%\n",
+		       PERCENT(mu.vm_active, mu_total),
+		       PERCENT(mu.vm_total, mu_total),
+		       PERCENT(mu.free, mu_total));
+
+		  /*printf("Active memory:    %2.1f %%\n", PERCENT(mem.active, mem.total));
 		printf("Inactive memory:  %2.1f %%\n", PERCENT(mem.inactive, mem.total));
 		printf("Free memory:      %2.1f %%\n", PERCENT(mem.free, mem.total));
 		printf("Swap:             %2.1f %%\n", PERCENT(mem.swap_used, mem.swap_total));

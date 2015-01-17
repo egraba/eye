@@ -3,6 +3,7 @@
 
 #include <sys/param.h>
 #include <sys/sysctl.h>
+#include <sys/vmmeter.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -18,10 +19,9 @@ typedef struct {
 } cpu_usage;
 
 typedef struct {
-	unsigned long active;
-	unsigned long inactive;
+	unsigned long vm_active;
+	unsigned long vm_total;
 	unsigned long free;
-	unsigned long total;
 	unsigned long swap_used;
 	unsigned long swap_total;
 } memory_usage;
@@ -38,7 +38,6 @@ typedef struct {
 	unsigned long progress;
 } io_usage;
 
-/* Prototypes */
 int get_cpu_usage(cpu_usage *cu);
 int get_memory_usage(memory_usage *mu);
 int get_network_usage(network_usage *nu);
