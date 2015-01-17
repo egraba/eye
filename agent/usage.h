@@ -31,22 +31,8 @@ typedef struct {
 	unsigned long total;
 } swap_usage;
 
-unsigned long cur_net[2];
-unsigned long prev_net[2];
-
-typedef struct {
-	unsigned long received;
-	unsigned long transmitted;
-} network_usage;
-
-typedef struct {
-	unsigned long progress;
-} io_usage;
-
 int get_cpu_usage(cpu_usage *cu);
 int get_memory_usage(memory_usage *mu);
 int get_swap_usage(swap_usage *su);
-int get_network_usage(network_usage *nu);
-int get_io_usage(io_usage *iu);
 
 #endif

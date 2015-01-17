@@ -72,15 +72,3 @@ get_swap_usage(swap_usage *su)
 
 	return (rc);
 }
-
-int
-get_network_usage(network_usage *usage)
-{
-
-}
-
-int
-get_io_usage(io_usage *usage)
-{
-
-}

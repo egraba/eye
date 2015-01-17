@@ -56,8 +56,6 @@ display_usage(int row)
 	cpu_usage cu;
 	memory_usage mu;
 	swap_usage su;
-	network_usage nu;
-	io_usage iu;
 
 	for (;;) {
 		unsigned long cu_total;
@@ -67,8 +65,6 @@ display_usage(int row)
 		printf("\033[J");
 
 		get_cpu_usage(&cu);
-		/*get_network_usage(&nu);
-		get_io_usage(&iu);*/
 
 		cu_total = cu.user + cu.nice + cu.sys + cu.intr + cu.idle;
 		printf("CPU: %2.1f%% %2.1f%% %2.1f%% %2.1f%% %2.1f%%\n",
@@ -88,13 +84,10 @@ display_usage(int row)
 		get_swap_usage(&su);
 		printf("Swap: %2.1f%%\n", PERCENT(su.used, su.total));
 
-		/*printf("Network: rec %2.1f KB | trans %2.1f KB\n",
-		       TRANSMIT_KB(net.received),
-		       TRANSMIT_KB(net.transmitted));
-		       printf("I/O: %lu requests\n", io.progress);*/
 		sleep(2);
 	}
 }
+
 
 static void
 terminate_standalone_mode()
