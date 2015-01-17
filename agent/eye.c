@@ -20,7 +20,7 @@
 int soc;
 
 static void
-setTtyScreen(struct winsize *ws)
+set_tty_screen(struct winsize *ws)
 {
 	if (ioctl(0, TIOCGWINSZ, ws) < 0) {
 		perror("Could not get tty size...\n");
@@ -31,9 +31,9 @@ setTtyScreen(struct winsize *ws)
 }
 
 static void
-displaySubTitle(struct winsize *ws, char *title)
+display_sub_title(struct winsize *ws, char *title)
 {
-	int titleX;
+	int x;
 
 	/* Title coordinates */
 	for (int i = 0; i < ws->ws_col; i++) {
@@ -41,37 +41,37 @@ displaySubTitle(struct winsize *ws, char *title)
 	}
 	printf("\n");
 
-	titleX = (ws->ws_col - strlen(title)) / 2;
-	for (int i = 0; i < titleX; i++) {
+	x = (ws->ws_col - strlen(title)) / 2;
+	for (int i = 0; i < x; i++) {
 		printf(" ");
 	}
 	printf("%s", title);
-	for (int i = titleX + strlen(title); i < ws->ws_col; i++) {
+	for (int i = x + strlen(title); i < ws->ws_col; i++) {
 		printf(" ");
 	}
 	printf("\n");
 }
 
 static void
-displayUsage(int row)
+display_usage(int row)
 {
-	cpuUsage cpu;
-	memoryUsage mem;
-	networkUsage net;
-	ioUsage io;
+	cpu_usage cpu;
+	memory_usage mem;
+	network_usage net;
+	io_usage io;
 
 	for (;;) {
 		CURSOR_POS(row, 1);
 		printf("\033[J");
-		getCpuUsage(&cpu);
-		getMemoryUsage(&mem);
-		getNetworkUsage(&net);
-		getIoUsage(&io);
+		get_cpu_usage(&cpu);
+		get_memory_usage(&mem);
+		get_network_usage(&net);
+		get_io_usage(&io);
 		printf("CPU:              %2.1f %%\n", PERCENT(cpu.used, cpu.total));
 		printf("Active memory:    %2.1f %%\n", PERCENT(mem.active, mem.total));
 		printf("Inactive memory:  %2.1f %%\n", PERCENT(mem.inactive, mem.total));
 		printf("Free memory:      %2.1f %%\n", PERCENT(mem.free, mem.total));
-		printf("Swap:             %2.1f %%\n", PERCENT(mem.swapUsed, mem.swapTotal));
+		printf("Swap:             %2.1f %%\n", PERCENT(mem.swap_used, mem.swap_total));
 		printf("Network: rec %2.1f KB | trans %2.1f KB\n",
 		       TRANSMIT_KB(net.received),
 		       TRANSMIT_KB(net.transmitted));
@@ -81,7 +81,7 @@ displayUsage(int row)
 }
 
 static void
-terminateStandaloneMode()
+terminate_standalone_mode()
 {
 	CLEAR_SCREEN();
 	CURSOR_POS(1, 1);
@@ -92,52 +92,52 @@ terminateStandaloneMode()
  * Standalone execution
  */
 static void
-standaloneMode()
+standalone_mode()
 {
 	computer info;
 	struct winsize ws;
 
-	if (collectInfo(&info) < 0) {
+	if (collect_info(&info) < 0) {
 		perror("Could not read computer information...\n");
 		exit(EXIT_FAILURE);
 	}
 
-	signal(SIGINT, terminateStandaloneMode);
-	setTtyScreen(&ws);
+	signal(SIGINT, terminate_standalone_mode);
+	set_tty_screen(&ws);
 	printf("eye <0>, Press 'q' or ESC to quit\n");
 	
-	displaySubTitle(&ws, "COMPUTER");
-	printf("OS type:      %s\n", info.osName);
-	printf("OS release:   %s\n", info.osRelease);
-	printf("Architecture: %s\n", info.osArch);
-	printf("CPU:          %s\n", info.cpuName);
-	printf("Total memory: %d MB\n", info.memorySize);
+	display_sub_title(&ws, "COMPUTER");
+	printf("OS type:      %s\n", info.os_name);
+	printf("OS release:   %s\n", info.os_release);
+	printf("Architecture: %s\n", info.os_arch);
+	printf("CPU:          %s\n", info.cpu_name);
+	printf("Total memory: %d MB\n", info.memory_size);
 	
-	displaySubTitle(&ws, "NETWORK");
-	printf("Mac address:  %s\n", info.macAddress);
-	printf("IPv4 address: %s\n", info.ipv4Address);
-	printf("IPv6 address: %s\n", info.ipv6Address);
+	display_sub_title(&ws, "NETWORK");
+	printf("Mac address:  %s\n", info.mac_address);
+	printf("IPv4 address: %s\n", info.ipv4_address);
+	printf("IPv6 address: %s\n", info.ipv6_address);
 	
-	displaySubTitle(&ws, "USAGE");
-	displayUsage(16);
+	display_sub_title(&ws, "USAGE");
+	display_usage(16);
 }
 
 static void
-sendMessage(int soc, const char *message)
+send_message(int soc, const char *message)
 {
-	int msgSentLen;
+	int msg_sent_len;
 
 	printf("Sending:\n");
 	printf("%s\n", message);
-	msgSentLen = send(soc, message, strlen(message), 0);
-	printf("Message length: %d\n\n", msgSentLen);
-	if (msgSentLen == 0) {
+	msg_sent_len = send(soc, message, strlen(message), 0);
+	printf("Message length: %d\n\n", msg_sent_len);
+	if (msg_sent_len == 0) {
 		perror("Message empty!\n");
 	}
 }
 
 static void
-terminateConnectedMode()
+terminate_connected_mode()
 {
 	printf("Deconnection...");
 	close(soc);
@@ -148,7 +148,7 @@ terminateConnectedMode()
  * Connected execution
  */
 static void
-connectedMode()
+connected_mode()
 {
 	struct sockaddr_in sa;
 
@@ -157,7 +157,7 @@ connectedMode()
 		exit(EXIT_FAILURE);
 	}
 
-	signal(SIGINT, terminateConnectedMode);
+	signal(SIGINT, terminate_connected_mode);
 
 	sa.sin_family = AF_INET;
 	sa.sin_port = htons(PORT);
@@ -169,38 +169,38 @@ connectedMode()
 	}
 
 	computer info;
-	cpuUsage cpu;
-	memoryUsage mem;
-	networkUsage net;
-	ioUsage io;
+	cpu_usage cpu;
+	memory_usage mem;
+	network_usage net;
+	io_usage io;
 
 	char data[BUFSIZ];
 
-	collectInfo(&info);
+	collect_info(&info);
 	
 	sprintf(data,
 		"{computerInfo:{osType:\"%s\",osRelease:\"%s\",arch:\"%s\",cpuName:\"%s\",totalMem:%d}}",
-		info.osName, info.osRelease, info.osArch, info.cpuName, info.memorySize); 
-	sendMessage(soc, data);
+		info.os_name, info.os_release, info.os_arch, info.cpu_name, info.memory_size); 
+	send_message(soc, data);
 
 	sprintf(data,
 		"{networkInfo:{mac:\"%s\",ipv4:\"%s\",ipv6:\"%s\"}}",
-		info.macAddress, info.ipv4Address, info.ipv6Address); 
-	sendMessage(soc, data);
+		info.mac_address, info.ipv4_address, info.ipv6_address); 
+	send_message(soc, data);
 
 	for (;;) {
-		getCpuUsage(&cpu);
-		getMemoryUsage(&mem);
-		getNetworkUsage(&net);
-		getIoUsage(&io);	
+		get_cpu_usage(&cpu);
+		get_memory_usage(&mem);
+		get_network_usage(&net);
+		get_io_usage(&io);	
 
 		sprintf(data,
 			"{usage:{cpu:{used:%lu,total:%lu},{mem:{active:%lu,inactive:%lu,free:%lu,total:%lu},swap:{used:%lu,total:%lu}},io:%lu}}",
 			cpu.used, cpu.total,
 			mem.active, mem.inactive, mem.free, mem.total,
-			mem.swapUsed, mem.swapTotal,
+			mem.swap_used, mem.swap_total,
 			io.progress);
-		sendMessage(soc, data);
+		send_message(soc, data);
 		sleep(2);
 	}
 	
@@ -230,12 +230,13 @@ main(int argc, char **argv)
 	while ((c = getopt (argc, argv, "sc")) != -1) {
 		switch (c) {
 		case 's':
-			standaloneMode();
+			standalone_mode();
 			break;
 		case 'c':
-			connectedMode();
+			connected_mode();
 			break;
-		case '?':
+		
+case '?':
 		default:
 			usage();
 			exit(EXIT_FAILURE);

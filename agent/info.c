@@ -1,133 +1,133 @@
 #include "info.h"
 
 static void
-getOsInfo(computer *pc)
+get_os_info(computer *pc)
 {
-	struct utsname osInfo;
+	struct utsname os_info;
 
-	int rc = uname(&osInfo);
+	int rc = uname(&os_info);
 	if (rc != UNAME_ERROR) {
-		pc->osName = strndup(osInfo.sysname, sizeof(osInfo.sysname));
-		pc->osRelease = strndup(osInfo.release, sizeof(osInfo.release));
-		pc->osArch = strndup(osInfo.machine, sizeof(osInfo.machine));
+		pc->os_name = strndup(os_info.sysname, sizeof(os_info.sysname));
+		pc->os_release = strndup(os_info.release, sizeof(os_info.release));
+		pc->os_arch = strndup(os_info.machine, sizeof(os_info.machine));
 	}
 }
 
 static void
-getCpuName(computer *pc)
+get_cpu_name(computer *pc)
 {
-#ifdef __FreeBSD__
-	pc->cpuName = malloc(BUFSIZ);
+#ifdef BSD
+	pc->cpu_name = malloc(BUFSIZ);
 	size_t len = BUFSIZ;
-	sysctlbyname("hw.model", pc->cpuName, &len, NULL, 0);
+	sysctlbyname("hw.model", pc->cpu_name, &len, NULL, 0);
 #endif
 #ifdef __linux__
-	FILE *cpuInfo;
-	char fileBuffer[BUFSIZ];
-	char *cpuNameLine;
-	int labelSize;
+	FILE *cpu_info;
+	char file_buffer[BUFSIZ];
+	char *cpu_name_line;
+	int label_size;
 
-	labelSize = strlen("model name\t: ");
-	cpuInfo = fopen("/proc/cpuinfo", "r");
+	label_size = strlen("model name\t: ");
+	cpu_info = fopen("/proc/cpuinfo", "r");
 
-	if (cpuInfo != NULL) {
-		while(fgets(fileBuffer, BUFSIZ, cpuInfo) != NULL) {
-			cpuNameLine = strstr(fileBuffer, "model name\t:");
-			if (cpuNameLine != NULL) {
+	if (cpu_info != NULL) {
+		while(fgets(file_buffer, BUFSIZ, cpu_info) != NULL) {
+			cpu_name_line = strstr(file_buffer, "model name\t:");
+			if (cpu_name_line != NULL) {
 				/* -1 is to remove '\n' */
-				pc->cpuName = strndup(cpuNameLine + labelSize,
-						      strlen(cpuNameLine) - labelSize - 1);
+				pc->cpu_name = strndup(cpu_name_line + label_size,
+						      strlen(cpu_name_line) - label_size - 1);
 				break;
 			}
 		}
-		fclose(cpuInfo);
+		fclose(cpu_info);
 	}
 #endif
 }
 
 static void
-getMemorySize(computer *pc)
+get_memory_size(computer *pc)
 {
-#ifdef __FreeBSD__
+#ifdef BSD
 	int *physMem = malloc(sizeof(int));
-	size_t len = sizeof(physMem);
+	size_t len = sizeof(phys_mem);
 
-	sysctlbyname("hw.physmem", physMem, &len, NULL, 0);
-	pc->memorySize = *physMem / pow(1024, 2);
+	sysctlbyname("hw.physmem", phys_mem, &len, NULL, 0);
+	pc->memory_size = *phys_mem / pow(1024, 2);
 #endif
 #ifdef __linux__
-	FILE *memInfo;
-	char fileBuffer[BUFSIZ];
-	char *memSizeLine;
-	int memInKb;
+	FILE *mem_info;
+	char file_buffer[BUFSIZ];
+	char *mem_size_line;
+	int mem_in_kb;
 
-	pc->memorySize = 0;
-	memInfo = fopen("/proc/meminfo", "r");
+	pc->memory_size = 0;
+	mem_info = fopen("/proc/meminfo", "r");
 
-	if (memInfo != NULL) {
-		while(fgets(fileBuffer, BUFSIZ, memInfo) != NULL) {
-			memSizeLine = strstr(fileBuffer, "MemTotal:");
+	if (mem_info != NULL) {
+		while(fgets(file_buffer, BUFSIZ, mem_info) != NULL) {
+			mem_size_line = strstr(file_buffer, "MemTotal:");
 
-			if (memSizeLine != NULL) {
-				sscanf(memSizeLine, "MemTotal: %d", &memInKb);
-				pc->memorySize = memInKb / 1024;
+			if (mem_size_line != NULL) {
+				sscanf(mem_size_line, "MemTotal: %d", &mem_in_kb);
+				pc->memory_size = mem_in_kb / 1024;
 				break;
 			}
 		}
 
-		fclose(memInfo);
+		fclose(mem_info);
 	}
 #endif
 }
 
 static void
-getNetworkInfo(computer *pc)
+get_network_info(computer *pc)
 {
 	struct ifaddrs *ifa;
 	struct ifaddrs *ifs;
-	unsigned char *macAddr;
-	struct sockaddr_in *ipAddr;
-	struct sockaddr_in6 *ipAddr6;
-	char *ipIf;
+	unsigned char *mac_addr;
+	struct sockaddr_in *ip_addr;
+	struct sockaddr_in6 *ip_addr6;
+	char *ip_if;
 
-	macAddr = malloc(sizeof(struct sockaddr));
-	ipAddr = malloc(sizeof(struct sockaddr_in));
-	ipAddr6 = malloc(sizeof(struct sockaddr_in6));
+	mac_addr = malloc(sizeof(struct sockaddr));
+	ip_addr = malloc(sizeof(struct sockaddr_in));
+	ip_addr6 = malloc(sizeof(struct sockaddr_in6));
 	getifaddrs(&ifs);
 
-#ifdef __FreeBSD__
+#ifdef BSD
 	/*
 	 * TODO: Have a generic mechanism to deal with interfaces.
 	 */
-	ipIf = strdup("bge0");
+	ip_if = strdup("bge0");
 #endif
 #ifdef __linux__
-	ipIf = strdup("eth0");
+	ip_if = strdup("eth0");
 #endif
 
 	for (ifa = ifs; ifa != NULL; ifa = ifa->ifa_next) {
-		if (!strcmp(ifa->ifa_name, ipIf)) {
+		if (!strcmp(ifa->ifa_name, ip_if)) {
 			if (ifa->ifa_addr->sa_family == ETH_IF) {
-				macAddr = (unsigned char*)((struct sockaddr*)ifa->ifa_addr->sa_data);
-				macAddr += 10;
-				sprintf(pc->macAddress,
+				mac_addr = (unsigned char*)((struct sockaddr*)ifa->ifa_addr->sa_data);
+				mac_addr += 10;
+				sprintf(pc->mac_address,
 					"%02x:%02x:%02x:%02x:%02x:%02x",
-					*macAddr,
-					*(macAddr + 1),
-					*(macAddr + 2),
-					*(macAddr + 3),
-					*(macAddr + 4),
-					*(macAddr + 5));
+					*mac_addr,
+					*(mac_addr + 1),
+					*(mac_addr + 2),
+					*(mac_addr + 3),
+					*(mac_addr + 4),
+					*(mac_addr + 5));
 			} else if (ifa->ifa_addr->sa_family == AF_INET) {
-				ipAddr->sin_addr.s_addr =
+				ip_addr->sin_addr.s_addr =
 					((struct sockaddr_in*)(ifa->ifa_addr))->sin_addr.s_addr;
-				strncpy(pc->ipv4Address, inet_ntoa(ipAddr->sin_addr), INET_ADDRSTRLEN);
+				strncpy(pc->ipv4_address, inet_ntoa(ip_addr->sin_addr), INET_ADDRSTRLEN);
 			} else if (ifa->ifa_addr->sa_family == AF_INET6) {
-				ipAddr6->sin6_addr =
+				ip_addr6->sin6_addr =
 					((struct sockaddr_in6*)(ifa->ifa_addr))->sin6_addr;
 				inet_ntop(AF_INET6,
-					  (const void *)&ipAddr6->sin6_addr,
-					  pc->ipv6Address,
+					  (const void *)&ip_addr6->sin6_addr,
+					  pc->ipv6_address,
 					  INET6_ADDRSTRLEN);
 			}
 		}
@@ -138,20 +138,20 @@ getNetworkInfo(computer *pc)
  * Collects all computer information
  */
 int
-collectInfo(computer *info)
+collect_info(computer *info)
 {
 	int rc = INFO_READING_OK;
 
-	getOsInfo(info);
-	getCpuName(info);
-	getMemorySize(info);
-	getNetworkInfo(info);
+	get_os_info(info);
+	get_cpu_name(info);
+	get_memory_size(info);
+	get_network_info(info);
 
-	if ((info->osName == NULL)
-	    || (info->osRelease == NULL)
-	    || (info->osArch == NULL)
-	    || (info->cpuName == NULL)
-	    || (info->memorySize == 0)) {
+	if ((info->os_name == NULL)
+	    || (info->os_release == NULL)
+	    || (info->os_arch == NULL)
+	    || (info->cpu_name == NULL)
+	    || (info->memory_size == 0)) {
 		rc = INFO_READING_ERROR;
 	}
 

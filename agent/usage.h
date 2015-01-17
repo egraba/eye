@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-#ifdef __FreeBSD__
+#ifdef BSD
 #include <stdlib.h>
 #include <devstat.h>
 #include <sys/sysctl.h>
@@ -30,7 +30,7 @@
 #define RC_IO_READING_ERROR -1
 #endif
 
-#ifdef __FreeBSD__
+#ifdef BSD
 unsigned long curCpu[CPUSTATES];
 unsigned long prevCpu[CPUSTATES];
 #endif
@@ -53,33 +53,33 @@ enum cpuState {
 typedef struct {
 	unsigned long used;
 	unsigned long total;
-} cpuUsage;
+} cpu_usage;
 
 typedef struct {
 	unsigned long active;
 	unsigned long inactive;
 	unsigned long free;
 	unsigned long total;
-	unsigned long swapUsed;
-	unsigned long swapTotal;
-} memoryUsage;
+	unsigned long swap_used;
+	unsigned long swap_total;
+} memory_usage;
 
-unsigned long curNet[2];
-unsigned long prevNet[2];
+unsigned long cur_net[2];
+unsigned long prev_net[2];
 
 typedef struct {
 	unsigned long received;
 	unsigned long transmitted;
-} networkUsage;
+} network_usage;
 
 typedef struct {
 	unsigned long progress;
-} ioUsage;
+} io_usage;
 
 /* Prototypes */
-int getCpuUsage(cpuUsage *usage);
-int getMemoryUsage(memoryUsage *usage);
-int getNetworkUsage(networkUsage *usage);
-int getIoUsage(ioUsage *usage);
+int get_cpu_usage(cpu_usage *usage);
+int get_memory_usage(memory_usage *usage);
+int get_network_usage(network_usage *usage);
+int get_io_usage(io_usage *usage);
 
 #endif

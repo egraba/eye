@@ -13,50 +13,50 @@ refresh(void *elemA, void *elemB, int elemSize, int nbElems)
 }
 
 int
-getCpuUsage(cpuUsage *usage)
+get_cpu_usage(cpu_usage *usage)
 {
-#ifdef __FreeBSD__
+#ifdef BSD
 	size_t len;
 	
 	/*
 	 * TODO: Manage several processors.
 	 */
-	len = sizeof(curCpu);
-	sysctlbyname("kern.cp_times", curCpu, &len, NULL, 0);
-	refresh(&curCpu, &prevCpu, sizeof(unsigned long), CPUSTATES);
+	len = sizeof(cur_cpu);
+	sysctlbyname("kern.cp_times", cur_cpu, &len, NULL, 0);
+	refresh(&cur_cpu, &prev_cpu, sizeof(unsigned long), CPUSTATES);
 	
 	usage->total = 0;
 	for (int i = 0; i < CPUSTATES; i++) {
-		usage->total += curCpu[i];
+		usage->total += cur_cpu[i];
 	}
-	usage->used = usage->total - *(curCpu + CP_IDLE);
+	usage->used = usage->total - *(cur_cpu + CP_IDLE);
 #endif
 #ifdef __linux__
-	FILE *statsFile;
-	char fileBuffer[BUFSIZ];
+	FILE *stats_file;
+	char file_buffer[BUFSIZ];
 
 	int rc = RC_CPU_READING_ERROR;
-	statsFile = fopen("/proc/stat", "r");
-	if (statsFile != NULL) {
-		if (fgets(fileBuffer, BUFSIZ, statsFile) != NULL) {
-			sscanf(fileBuffer,
+	stats_file = fopen("/proc/stat", "r");
+	if (stats_file != NULL) {
+		if (fgets(file_buffer, BUFSIZ, stats_file) != NULL) {
+			sscanf(file_buffer,
 			       "cpu %lu %lu %lu %lu %lu %lu %lu",
-			       curCpu + USER,
-			       curCpu + NICE,
-			       curCpu + SYSTEM,
-			       curCpu + IDLE,
-			       curCpu + IOWAIT,
-			       curCpu + IRQ,
-			       curCpu + SOFTIRQ);
+			       cur_cpu + USER,
+			       cur_cpu + NICE,
+			       cur_cpu + SYSTEM,
+			       cur_cpu + IDLE,
+			       cur_cpu + IOWAIT,
+			       cur_cpu + IRQ,
+			       cur_cpu + SOFTIRQ);
 
 			usage->total = 0;
-			refresh(&curCpu, &prevCpu, sizeof(unsigned long), CPU_STATES);
+			refresh(&cur_cpu, &prev_cpu, sizeof(unsigned long), CPU_STATES);
 			for (int i = 0; i < CPU_STATES; i++) {
-				usage->total += curCpu[i];
+				usage->total += cur_cpu[i];
 			}
-			usage->used = usage->total - *(curCpu + IDLE);
+			usage->used = usage->total - *(cur_cpu + IDLE);
 		}
-		fclose(statsFile);
+		fclose(stats_file);
 		rc = RC_CPU_OK;
 	}
 	return rc;
@@ -64,53 +64,53 @@ getCpuUsage(cpuUsage *usage)
 }
 
 int
-getMemoryUsage(memoryUsage *usage)
+get_memory_usage(memory_usage *usage)
 {
-#ifdef __FreeBSD__
+#ifdef BSD
 	struct vmtotal mem;
 	size_t len;
-	int pageSize;
+	int page_size;
 	
 	len = sizeof(mem);
 	sysctlbyname("vm.vmtotal", &mem, &len, NULL, 0);
-	len = sizeof(pageSize);
-	sysctlbyname("vm.stats.vm.v_page_size", &pageSize, &len, NULL, 0);
+	len = sizeof(page_size);
+	sysctlbyname("vm.stats.vm.v_page_size", &page_size, &len, NULL, 0);
 
 	usage->total = mem.t_vm / 1024 / 1024 * 2;
 	usage->active = mem.t_avm / 1024 / 10;
-	usage->free = mem.t_free * pageSize / 1024 / 1024;
+	usage->free = mem.t_free * page_size / 1024 / 1024;
 	usage->inactive = usage->total - usage->active;
 #endif
 #ifdef __linux__
-	FILE *memoryFile;
-	char fileBuffer[BUFSIZ];
+	FILE *memory_file;
+	char file_buffer[BUFSIZ];
 	char *line;
 
 	int rc = RC_MEM_READING_ERROR;
-	memoryFile = fopen("/proc/meminfo", "r");
-	if (memoryFile != NULL) {
-		while (fgets(fileBuffer, BUFSIZ, memoryFile) != NULL) {
-			line = strstr(fileBuffer, "MemFree:");
+	memory_file = fopen("/proc/meminfo", "r");
+	if (memory_file != NULL) {
+		while (fgets(file_buffer, BUFSIZ, memory_file) != NULL) {
+			line = strstr(file_buffer, "MemFree:");
 			if (line != NULL) {
 				sscanf(line,"MemFree: %lu", &usage->free);
 			}
 
-			line = strstr(fileBuffer, "Active:");
+			line = strstr(file_buffer, "Active:");
 			if (line != NULL) {
 				sscanf(line,"Active: %lu", &usage->active);
 			}
 
-			line = strstr(fileBuffer, "Inactive:");
+			line = strstr(file_buffer, "Inactive:");
 			if (line != NULL) {
 				sscanf(line, "Inactive: %lu", &usage->inactive);
 			}
 
-			line = strstr(fileBuffer, "SwapCached:");
+			line = strstr(file_buffer, "SwapCached:");
 			if (line != NULL) {
 				sscanf(line, "SwapCached: %lu", &usage->swapUsed);
 			}
 
-			line = strstr(fileBuffer, "SwapTotal:");
+			line = strstr(file_buffer, "SwapTotal:");
 			if (line != NULL) {
 				sscanf(line, "SwapTotal: %lu", &usage->swapTotal);
 			}
@@ -118,7 +118,7 @@ getMemoryUsage(memoryUsage *usage)
 
 		usage->total = usage->active + usage->inactive + usage->free;
 
-		fclose(memoryFile);
+		fclose(memory_file);
 		rc = RC_MEM_OK;
 	}
 	return rc;
@@ -126,36 +126,36 @@ getMemoryUsage(memoryUsage *usage)
 }
 
 int
-getNetworkUsage(networkUsage *usage)
+get_network_usage(network_usage *usage)
 {
-#ifdef __FreeBSD__
+#ifdef BSD
 
 #endif
 #ifdef __linux__
-	FILE *networkFile;
-	char fileBuffer[BUFSIZ];
+	FILE *network_file;
+	char file_buffer[BUFSIZ];
 	char *line;
 	unsigned long rfu;
 
 	int rc = RC_NET_READING_ERROR;
-	networkFile = fopen("/proc/net/dev", "r");
-	if (networkFile != NULL) {
-		while (fgets(fileBuffer, BUFSIZ, networkFile) != NULL) {
-			line = strstr(fileBuffer, "eth0:");
+	network_file = fopen("/proc/net/dev", "r");
+	if (network_file != NULL) {
+		while (fgets(file_buffer, BUFSIZ, network_file) != NULL) {
+			line = strstr(file_buffer, "eth0:");
 			if (line != NULL) {
 				sscanf(line,
 				       "eth0: %lu %lu %lu %lu %lu %lu %lu %lu %lu",
-				       curNet,
+				       cur_net,
 				       &rfu, &rfu, &rfu, &rfu, &rfu, &rfu,&rfu,
-				       curNet + 1);
+				       cur_net + 1);
 				usage->received = 0;
 				usage->transmitted = 0;
-				refresh(&curNet, &prevNet, sizeof(unsigned long), 2);
-				usage->received += *curNet;
-				usage->transmitted += *(curNet + 1);
+				refresh(&cur_net, &prev_net, sizeof(unsigned long), 2);
+				usage->received += *cur_net;
+				usage->transmitted += *(cur_net + 1);
 			}
 		}
-		fclose(networkFile);
+		fclose(network_file);
 		rc = RC_NET_OK;
 	}
 	return rc;
@@ -163,22 +163,22 @@ getNetworkUsage(networkUsage *usage)
 }
 
 int
-getIoUsage(ioUsage *usage)
+get_io_usage(io_usage *usage)
 {
-#ifdef __FreeBSD__
+#ifdef BSD
 
 #endif
 #ifdef __linux__
-	FILE *ioFile;
-	char fileBuffer[BUFSIZ];
+	FILE *io_file;
+	char file_buffer[BUFSIZ];
 	char *line;
 	unsigned long rfu;
 
 	int rc = RC_IO_READING_ERROR;
-	ioFile = fopen("/proc/diskstats", "r");
-	if (ioFile != NULL) {
-		while (fgets(fileBuffer, BUFSIZ, ioFile) != NULL) {
-			line = strstr(fileBuffer, "sda");
+	io_file = fopen("/proc/diskstats", "r");
+	if (io_file != NULL) {
+		while (fgets(file_buffer, BUFSIZ, io_file) != NULL) {
+			line = strstr(file_buffer, "sda");
 			if (line != NULL) {
 				sscanf(line,
 				       "sda %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu",
@@ -188,7 +188,7 @@ getIoUsage(ioUsage *usage)
 				break;
 			}
 		}
-		fclose(ioFile);
+		fclose(io_file);
 		rc = RC_IO_OK;
 	}
 	return rc;
