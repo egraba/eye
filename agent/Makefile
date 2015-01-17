@@ -1,10 +1,10 @@
 ########################
-# Makefile for FreeBSD #
+# Makefile for OpenBSD #
 ########################
 
 # Compiler rules
-CC	= clang
-CFLAGS	= -Wall -pedantic
+CC	= gcc -g
+CFLAGS	= -W -Wall -ansi -pedantic
 LINKS	= -lm
 
 # Project settings
@@ -20,8 +20,5 @@ all: ${OBJS}
 clean:
 	rm -f $(EXEC)
 	rm -f *.o
-
-analyze:
-	$(CC) --analyze ${SRC}
-
+	rm -f *~
 
