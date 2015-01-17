@@ -104,7 +104,7 @@ get_network_info(computer *pc)
 #ifdef __linux__
 	ip_if = strdup("eth0");
 #endif
-
+/*
 	for (ifa = ifs; ifa != NULL; ifa = ifa->ifa_next) {
 		if (!strcmp(ifa->ifa_name, ip_if)) {
 			if (ifa->ifa_addr->sa_family == ETH_IF) {
@@ -132,6 +132,7 @@ get_network_info(computer *pc)
 			}
 		}
 	}
+*/
 }
 
 /*

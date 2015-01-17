@@ -34,19 +34,20 @@ static void
 display_sub_title(struct winsize *ws, char *title)
 {
 	int x;
+	int i;
 
 	/* Title coordinates */
-	for (int i = 0; i < ws->ws_col; i++) {
+	for (i = 0; i < ws->ws_col; i++) {
 		printf("=");
 	}
 	printf("\n");
 
 	x = (ws->ws_col - strlen(title)) / 2;
-	for (int i = 0; i < x; i++) {
+	for (i = 0; i < x; i++) {
 		printf(" ");
 	}
 	printf("%s", title);
-	for (int i = x + strlen(title); i < ws->ws_col; i++) {
+	for (i = x + strlen(title); i < ws->ws_col; i++) {
 		printf(" ");
 	}
 	printf("\n");
@@ -152,6 +153,14 @@ connected_mode()
 {
 	struct sockaddr_in sa;
 
+	computer info;
+	cpu_usage cpu;
+	memory_usage mem;
+	network_usage net;
+	io_usage io;
+
+	char data[BUFSIZ];
+
 	if ((soc = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("Socket error...");
 		exit(EXIT_FAILURE);
@@ -167,14 +176,6 @@ connected_mode()
 		perror("Connect error...");
 		exit(EXIT_FAILURE);
 	}
-
-	computer info;
-	cpu_usage cpu;
-	memory_usage mem;
-	network_usage net;
-	io_usage io;
-
-	char data[BUFSIZ];
 
 	collect_info(&info);
 	

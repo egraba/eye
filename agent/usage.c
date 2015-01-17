@@ -3,13 +3,14 @@
 static void
 refresh(void *elemA, void *elemB, int elemSize, int nbElems)
 {
-	void *temp[nbElems * elemSize];
+/*	void *temp[nbElems * elemSize];
 
 	memcpy(temp, elemA, nbElems * elemSize);
 	for (int i = 0; i < nbElems; i++) {
 		*((int *) elemA + i * elemSize / sizeof(int)) -= *((int *) elemB + i * elemSize / sizeof(int));
 	}
 	memcpy(elemB, temp, nbElems * elemSize);
+*/
 }
 
 int
