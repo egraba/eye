@@ -58,7 +58,7 @@ get_memory_size(machine *m)
 	size_t len;
 
 	mib[0] = CTL_HW;
-	mib[1] = HW_PHYSMEM;
+	mib[1] = HW_PHYSMEM64;
 	len = sizeof(mib);
 
 	rc = sysctl(mib, 2, &(m->physmem), &len, NULL, 0);
