@@ -5,7 +5,7 @@
 # Compiler rules
 CC	= gcc -g
 CFLAGS	= -W -Wall -ansi -pedantic
-LINKS	= -lm
+LINKS	= 
 
 # Project settings
 EXEC	= eye

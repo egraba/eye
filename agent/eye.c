@@ -7,9 +7,6 @@
 #include "info.h"
 #include "usage.h"
 
-#define PORT 1111
-#define SERVER_IP "192.168.1.82"
-
 #define CLEAR_SCREEN() printf("\033[2J")
 #define CURSOR_POS(row, col) printf("\033[%d;%dH", row, col)
 
@@ -95,7 +92,7 @@ terminate_standalone_mode()
 static void
 standalone_mode()
 {
-	computer info;
+	machine info;
 	struct winsize ws;
 
 	if (collect_info(&info) < 0) {
@@ -107,20 +104,22 @@ standalone_mode()
 	set_tty_screen(&ws);
 	printf("eye <0>, Press 'q' or ESC to quit\n");
 	
-	display_sub_title(&ws, "COMPUTER");
-	printf("OS type:      %s\n", info.os_name);
-	printf("OS release:   %s\n", info.os_release);
-	printf("Architecture: %s\n", info.os_arch);
-	printf("CPU:          %s\n", info.cpu_name);
-	printf("Total memory: %d MB\n", info.memory_size);
-	
-	display_sub_title(&ws, "NETWORK");
-	printf("Mac address:  %s\n", info.mac_address);
-	printf("IPv4 address: %s\n", info.ipv4_address);
-	printf("IPv6 address: %s\n", info.ipv6_address);
+	display_sub_title(&ws, "MACHINE");
+
+	printf("Hostname        : %s\n", info.nodename);
+	printf("\n");
+	printf("OS  | name      : %s\n", info.sysname);
+	printf("    | release   : %s\n", info.release);
+	printf("    | version   : %s\n", info.version);
+	printf("\n");
+	printf("CPU | type      : %s\n", info.machine);
+	printf("    | name      : %s\n", info.cpuname);
+	printf("    | cores     : %d\n", info.ncpus);
+	printf("\n");
+	printf("Physical memory : %d bytes\n", info.physmem);
 	
 	display_sub_title(&ws, "USAGE");
-	display_usage(16);
+	display_usage(17);
 }
 
 static void
@@ -151,7 +150,7 @@ terminate_connected_mode()
 static void
 connected_mode()
 {
-	struct sockaddr_in sa;
+/*	struct sockaddr_in sa;
 
 	computer info;
 	cpu_usage cpu;
@@ -204,7 +203,7 @@ connected_mode()
 		send_message(soc, data);
 		sleep(2);
 	}
-	
+*/
 }
 
 static void
