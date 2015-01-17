@@ -53,19 +53,32 @@ display_sub_title(struct winsize *ws, char *title)
 static void
 display_usage(int row)
 {
-	cpu_usage cpu;
-	memory_usage mem;
-	network_usage net;
-	io_usage io;
+	cpu_usage cu;
+	memory_usage mu;
+	network_usage nu;
+	io_usage iu;
 
 	for (;;) {
+		unsigned long cu_total;
+
 		CURSOR_POS(row, 1);
 		printf("\033[J");
-		get_cpu_usage(&cpu);
-		get_memory_usage(&mem);
+
+		get_cpu_usage(&cu);
+		/*get_memory_usage(&mem);
 		get_network_usage(&net);
-		get_io_usage(&io);
-		printf("CPU:              %2.1f %%\n", PERCENT(cpu.used, cpu.total));
+		get_io_usage(&io);*/
+
+		cu_total = cu.user + cu.nice + cu.sys + cu.intr + cu.idle;
+
+		printf("CPU: %2.1f%% %2.1f%% %2.1f%% %2.1f%% %2.1f%%\n",
+		       PERCENT(cu.user, cu_total),
+		       PERCENT(cu.nice, cu_total),
+		       PERCENT(cu.sys, cu_total),
+		       PERCENT(cu.intr, cu_total),
+		       PERCENT(cu.idle, cu_total));
+
+		/*printf("CPU:              %2.1f %%\n", PERCENT(cpu.used, cpu.total));
 		printf("Active memory:    %2.1f %%\n", PERCENT(mem.active, mem.total));
 		printf("Inactive memory:  %2.1f %%\n", PERCENT(mem.inactive, mem.total));
 		printf("Free memory:      %2.1f %%\n", PERCENT(mem.free, mem.total));
@@ -73,7 +86,7 @@ display_usage(int row)
 		printf("Network: rec %2.1f KB | trans %2.1f KB\n",
 		       TRANSMIT_KB(net.received),
 		       TRANSMIT_KB(net.transmitted));
-		printf("I/O: %lu requests\n", io.progress);
+		       printf("I/O: %lu requests\n", io.progress);*/
 		sleep(2);
 	}
 }

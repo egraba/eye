@@ -1,58 +1,20 @@
 #ifndef _USAGE
 #define _USAGE
 
+#include <sys/param.h>
+#include <sys/sysctl.h>
+#include <stdlib.h>
 #include <string.h>
 
-#ifdef BSD
-#include <stdlib.h>
-#include <devstat.h>
-#include <sys/sysctl.h>
-#include <sys/vmmeter.h>
-#endif
-
-#ifdef __linux__
-#include <stdio.h>
-#endif
-
-#ifdef __linux__
-#define CPU_STATES 7
-
-#define RC_CPU_OK 0
-#define RC_CPU_READING_ERROR -1
-
-#define RC_MEM_OK 0
-#define RC_MEM_READING_ERROR -1
-
-#define RC_NET_OK 0
-#define RC_NET_READING_ERROR -1
-
-#define RC_IO_OK 0
-#define RC_IO_READING_ERROR -1
-#endif
-
-#ifdef BSD
-unsigned long curCpu[CPUSTATES];
-unsigned long prevCpu[CPUSTATES];
-#endif
-
-#ifdef __linux__
-unsigned long curCpu[CPU_STATES];
-unsigned long prevCpu[CPU_STATES];
-
-enum cpuState {
-	USER,
-	NICE,
-	SYSTEM,
-	IDLE,
-	IOWAIT,
-	IRQ,
-	SOFTIRQ
-};
-#endif
+unsigned long cur[5];
+unsigned long prev[5];
 
 typedef struct {
-	unsigned long used;
-	unsigned long total;
+	unsigned long user;
+	unsigned long nice;
+	unsigned long sys;
+	unsigned long intr;
+	unsigned long idle;
 } cpu_usage;
 
 typedef struct {
@@ -77,9 +39,9 @@ typedef struct {
 } io_usage;
 
 /* Prototypes */
-int get_cpu_usage(cpu_usage *usage);
-int get_memory_usage(memory_usage *usage);
-int get_network_usage(network_usage *usage);
-int get_io_usage(io_usage *usage);
+int get_cpu_usage(cpu_usage *cu);
+int get_memory_usage(memory_usage *mu);
+int get_network_usage(network_usage *nu);
+int get_io_usage(io_usage *iu);
 
 #endif
