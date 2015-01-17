@@ -38,7 +38,6 @@ get_memory_usage(memory_usage *mu)
 	int mib[2];
 	struct vmtotal mem;
 	size_t len;
-	int page_size;
 	
 	mib[0] = CTL_VM;
 	mib[1] = VM_METER;

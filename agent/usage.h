@@ -8,6 +8,7 @@
 #include <machine/cpu.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 unsigned long cur[CPUSTATES];
 unsigned long prev[CPUSTATES];
