@@ -4,11 +4,12 @@
 #include <sys/param.h>
 #include <sys/sysctl.h>
 #include <sys/vmmeter.h>
+#include <machine/cpu.h>
 #include <stdlib.h>
 #include <string.h>
 
-unsigned long cur[5];
-unsigned long prev[5];
+unsigned long cur[CPUSTATES];
+unsigned long prev[CPUSTATES];
 
 typedef struct {
 	unsigned long user;

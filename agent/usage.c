@@ -6,7 +6,7 @@ get_cpu_usage(cpu_usage *cu)
 	int rc;
 	int mib[2];
 	size_t len;
-	unsigned long tmp[5];
+	unsigned long tmp[CPUSTATES];
 	
 	mib[0] = CTL_KERN;
 	mib[1] = KERN_CPTIME;
@@ -15,7 +15,7 @@ get_cpu_usage(cpu_usage *cu)
 	if (rc != -1) {
 		int i;
 
-		for (i = 0; i < 5; i++) {
+		for (i = 0; i < CPUSTATES; i++) {
 			tmp[i] = cur[i];
 			cur[i] -= prev[i];
 			prev[i] = tmp[i];
