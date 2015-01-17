@@ -44,17 +44,31 @@ get_memory_usage(memory_usage *mu)
 	mib[1] = VM_METER;
 	len = sizeof(mem);
 	rc = sysctl(mib, 2, &mem, &len, NULL, 0);
-/*	len = sizeof(page_size);
-	rc = sysctlbyname("vm.stats.vm.v_page_size", &page_size, &len, NULL, 0);
-
-	usage->total = mem.t_vm / 1024 / 1024 * 2;
-	usage->active = mem.t_avm / 1024 / 10;
-	usage->free = mem.t_free * page_size / 1024 / 1024;
-	usage->inactive = usage->total - usage->active;*/
 
 	mu->vm_active = mem.t_avm;
 	mu->vm_total = mem.t_vm;
 	mu->free = mem.t_free;
+
+	return (rc);
+}
+
+int
+get_swap_usage(swap_usage *su)
+{
+	int rc;
+	int nswap;
+	struct swapent swap;
+
+	nswap = swapctl(SWAP_NSWAP, 0, 0);
+	if (nswap < 1)
+		rc = -1;
+	else {
+		rc = swapctl(SWAP_STATS, &swap, nswap);
+		if (rc != -1) {
+			su->used = swap.se_inuse;
+			su->total = swap.se_nblks;
+		}
+	}
 
 	return (rc);
 }

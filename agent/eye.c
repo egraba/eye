@@ -55,6 +55,7 @@ display_usage(int row)
 {
 	cpu_usage cu;
 	memory_usage mu;
+	swap_usage su;
 	network_usage nu;
 	io_usage iu;
 
@@ -84,11 +85,10 @@ display_usage(int row)
 		       PERCENT(mu.vm_total, mu_total),
 		       PERCENT(mu.free, mu_total));
 
-		  /*printf("Active memory:    %2.1f %%\n", PERCENT(mem.active, mem.total));
-		printf("Inactive memory:  %2.1f %%\n", PERCENT(mem.inactive, mem.total));
-		printf("Free memory:      %2.1f %%\n", PERCENT(mem.free, mem.total));
-		printf("Swap:             %2.1f %%\n", PERCENT(mem.swap_used, mem.swap_total));
-		printf("Network: rec %2.1f KB | trans %2.1f KB\n",
+		get_swap_usage(&su);
+		printf("Swap: %2.1f%%\n", PERCENT(su.used, su.total));
+
+		/*printf("Network: rec %2.1f KB | trans %2.1f KB\n",
 		       TRANSMIT_KB(net.received),
 		       TRANSMIT_KB(net.transmitted));
 		       printf("I/O: %lu requests\n", io.progress);*/
