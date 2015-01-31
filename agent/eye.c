@@ -119,6 +119,8 @@ standalone_mode()
 	}
 
 	signal(SIGINT, terminate_standalone_mode);
+	signal(SIGQUIT, terminate_standalone_mode);
+
 	set_tty_screen(&ws);
 	printf("eye <0>, Press 'q' or ESC to quit\n");
 	
