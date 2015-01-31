@@ -100,8 +100,7 @@ display_usage(int row)
 void
 terminate_standalone_mode()
 {
-	CLEAR_SCREEN();
-	CURSOR_POS(1, 1);
+	printf("\n");
 	exit(EXIT_SUCCESS);
 }
 
