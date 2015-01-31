@@ -73,20 +73,22 @@ display_usage(int row)
 		printf("\033[J");
 
 		get_cpu_usage(&cu);
-
 		cu_total = cu.user + cu.nice + cu.sys + cu.intr + cu.idle;
-		printf("CPU: %2.1f%% %2.1f%% %2.1f%% %2.1f%% %2.1f%%\n",
-		       PERCENT(cu.user, cu_total),
-		       PERCENT(cu.nice, cu_total),
-		       PERCENT(cu.sys, cu_total),
-		       PERCENT(cu.intr, cu_total),
-		       PERCENT(cu.idle, cu_total));
+
+		printf("CPU: %2.1f%% user, ", PERCENT(cu.user, cu_total));
+		printf("%2.1f%% nice, ", PERCENT(cu.nice, cu_total));
+		printf("%2.1f%% system, ", PERCENT(cu.sys, cu_total));
+		printf("%2.1f%% interrupt, ", PERCENT(cu.intr, cu_total));
+		printf("%2.1f%% idle\n", PERCENT(cu.idle, cu_total));
 
 		get_memory_usage(&mu);
 		mu_total = mu.vm_active + mu.vm_total + mu.free;
-		printf("Memory: %2.1f%% %2.1f%% %2.1f%%\n",
-		       PERCENT(mu.vm_active, mu_total),
-		       PERCENT(mu.vm_total, mu_total),
+
+		printf("Memory: %2.1f%% active, ",
+		       PERCENT(mu.vm_active, mu_total));
+		printf("%2.1f%% total, ",
+		       PERCENT(mu.vm_total, mu_total));
+		printf("%2.1f%% free\n",
 		       PERCENT(mu.free, mu_total));
 
 		get_swap_usage(&su);
