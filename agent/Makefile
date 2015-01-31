@@ -4,7 +4,7 @@
 
 # Compiler rules
 CC	= gcc -g
-CFLAGS	= -W -Wall -ansi -pedantic
+CFLAGS	= -Wall -Wextra -ansi -pedantic
 LINKS	= 
 
 # Project settings
