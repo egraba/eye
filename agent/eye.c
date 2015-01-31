@@ -13,6 +13,13 @@
 #define PERCENT(x, y) (double) x / (double) y * 100
 #define TRANSMIT_KB(x) (double) x / 1024 
 
+/* Prototypes */
+void connected_mode();
+void terminate_connected_mode();
+void standalone_mode();
+void terminate_standalone_mode();
+void usage();
+
 /* Global variables */
 int soc;
 
@@ -23,6 +30,7 @@ set_tty_screen(struct winsize *ws)
 		perror("Could not get tty size...\n");
 		exit(EXIT_FAILURE);
 	}
+
 	CLEAR_SCREEN();
 	CURSOR_POS(1, 1);
 }
@@ -89,7 +97,7 @@ display_usage(int row)
 }
 
 
-static void
+void
 terminate_standalone_mode()
 {
 	CLEAR_SCREEN();
@@ -100,7 +108,7 @@ terminate_standalone_mode()
 /*
  * Standalone execution
  */
-static void
+void
 standalone_mode()
 {
 	machine info;
@@ -147,7 +155,7 @@ send_message(int soc, const char *message)
 	}
 }
 
-static void
+void
 terminate_connected_mode()
 {
 	printf("Deconnection...");
@@ -158,7 +166,7 @@ terminate_connected_mode()
 /*
  * Connected execution
  */
-static void
+void
 connected_mode()
 {
 /*	struct sockaddr_in sa;
@@ -217,7 +225,7 @@ connected_mode()
 */
 }
 
-static void
+void
 usage()
 {
 	printf("usage: eye [-s] [-c]\n");
