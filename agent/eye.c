@@ -1,8 +1,9 @@
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <signal.h>
-#include <sys/ioctl.h>
 
 #include "info.h"
 #include "usage.h"
@@ -11,12 +12,14 @@
 #define CURSOR_POS(row, col) printf("\033[%d;%dH", row, col)
 
 #define PERCENT(x, y) (double) x / (double) y * 100
-#define TRANSMIT_KB(x) (double) x / 1024 
+#define TRANSMIT_KB(x) (double) x / 1024
+
+#define INTERVAL 2
 
 /* Prototypes */
-void connected_mode();
+void connected_mode(int interval);
 void terminate_connected_mode();
-void standalone_mode();
+void standalone_mode(int interval);
 void terminate_standalone_mode();
 void usage();
 
@@ -59,7 +62,7 @@ display_sub_title(struct winsize *ws, char *title)
 }
 
 static void
-display_usage(int row)
+display_usage(int row, int interval)
 {
 	cpu_usage cu;
 	memory_usage mu;
@@ -94,7 +97,7 @@ display_usage(int row)
 		get_swap_usage(&su);
 		printf("Swap: %2.1f%%\n", PERCENT(su.used, su.total));
 
-		sleep(2);
+		sleep(interval);
 	}
 }
 
@@ -110,7 +113,7 @@ terminate_standalone_mode()
  * Standalone execution
  */
 void
-standalone_mode()
+standalone_mode(int interval)
 {
 	machine info;
 	struct winsize ws;
@@ -141,7 +144,7 @@ standalone_mode()
 	printf("Physical memory : %d bytes\n", info.physmem);
 	
 	display_sub_title(&ws, "USAGE");
-	display_usage(17);
+	display_usage(17, interval);
 }
 
 static void
@@ -170,7 +173,7 @@ terminate_connected_mode()
  * Connected execution
  */
 void
-connected_mode()
+connected_mode(int interval)
 {
 /*	struct sockaddr_in sa;
 
@@ -231,9 +234,10 @@ connected_mode()
 void
 usage()
 {
-	printf("usage: eye [-s] [-c]\n");
+	printf("usage: eye <-s|-c> [-i <interval>]\n");
 	printf("\t-s\tStandalone mode\n");
 	printf("\t-c\tConnected mode\n");
+	printf("\t-i <interval> Time (in seconds) between 2 refreshes\n");
 }
 
 /*
@@ -243,27 +247,57 @@ int
 main(int argc, char **argv)
 {
 	int c;
+	char *it_arg;
+	int is_standalone = 0;
+	int is_connected = 0;
+	int is_interval = 0;
+	int interval = 0;
 
 	if (argc < 2) {
 		usage();
 		exit(EXIT_SUCCESS);
 	}
 
-	while ((c = getopt (argc, argv, "sc")) != -1) {
+	while ((c = getopt (argc, argv, "sci:")) != -1) {
 		switch (c) {
 		case 's':
-			standalone_mode();
+			is_standalone = 1;
 			break;
+
 		case 'c':
-			connected_mode();
+			is_connected = 1;
+			break;
+
+		case 'i':
+			is_interval = 1;
+			it_arg = strdup(optarg);
 			break;
 		
-case '?':
+		case '?':
 		default:
 			usage();
 			exit(EXIT_FAILURE);
 		}
 	}
+	argc -= optind;
+	argv += optind;
+
+	if (is_interval)
+		interval = strtonum(it_arg, 0, 10, NULL);
+
+	if (is_interval && interval <= 0)
+		interval = INTERVAL;
+
+	if (is_connected && is_standalone) {
+		usage();
+		exit(EXIT_FAILURE);
+	}
+
+	if (is_connected && !is_standalone)
+		connected_mode(interval);
+
+	if (!is_connected && is_standalone)
+		standalone_mode(interval);
 
 	exit(EXIT_SUCCESS);
 }
