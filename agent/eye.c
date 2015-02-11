@@ -127,7 +127,7 @@ standalone_mode(int interval)
 	signal(SIGQUIT, terminate_standalone_mode);
 
 	set_tty_screen(&ws);
-	printf("eye <0>, Press 'q' or ESC to quit\n");
+	printf("eye <0>, Press Ctrl + 'C' to quit\n");
 	
 	display_sub_title(&ws, "MACHINE");
 
