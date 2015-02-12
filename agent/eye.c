@@ -1,4 +1,7 @@
+#include <arpa/inet.h>
+#include <netinet/in.h>
 #include <sys/ioctl.h>
+#include <sys/socket.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
@@ -15,16 +18,17 @@
 #define TRANSMIT_KB(x) (double) x / 1024
 
 #define INTERVAL 2
+#define DEFAULT_PORT 9999
 
-/* Prototypes */
-void connected_mode(int interval);
-void terminate_connected_mode();
+
+
+void connected_mode(int interval, char *ip, int port);
+void terminate_connected_mode(int socket);
 void standalone_mode(int interval);
 void terminate_standalone_mode();
 void usage();
 
-/* Global variables */
-int soc;
+
 
 static void
 set_tty_screen(struct winsize *ws)
@@ -129,7 +133,8 @@ standalone_mode(int interval)
 	set_tty_screen(&ws);
 	printf("eye <0>, Press Ctrl + 'C' to quit\n");
 	
-	display_sub_title(&ws, "MACHINE");
+	
+display_sub_title(&ws, "MACHINE");
 
 	printf("Hostname        : %s\n", info.nodename);
 	printf("\n");
@@ -147,7 +152,7 @@ standalone_mode(int interval)
 	display_usage(17, interval);
 }
 
-static void
+/*static void
 send_message(int soc, const char *message)
 {
 	int msg_sent_len;
@@ -159,13 +164,13 @@ send_message(int soc, const char *message)
 	if (msg_sent_len == 0) {
 		perror("Message empty!\n");
 	}
-}
+}*/
 
 void
-terminate_connected_mode()
+terminate_connected_mode(int socket)
 {
-	printf("Deconnection...");
-	close(soc);
+	printf("Deconnection...\n");
+	close(socket);
 	exit(EXIT_SUCCESS);
 }
 
@@ -173,19 +178,17 @@ terminate_connected_mode()
  * Connected execution
  */
 void
-connected_mode(int interval)
+connected_mode(int interval, char *ip, int port)
 {
-/*	struct sockaddr_in sa;
-
-	computer info;
-	cpu_usage cpu;
-	memory_usage mem;
-	network_usage net;
-	io_usage io;
-
+	int s;
+	struct sockaddr_in sa;
 	char data[BUFSIZ];
 
-	if ((soc = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+	machine info;
+	cpu_usage cpu;
+	memory_usage mem;
+
+	if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("Socket error...");
 		exit(EXIT_FAILURE);
 	}
@@ -193,17 +196,20 @@ connected_mode(int interval)
 	signal(SIGINT, terminate_connected_mode);
 
 	sa.sin_family = AF_INET;
-	sa.sin_port = htons(PORT);
-	inet_pton(sa.sin_family, SERVER_IP, &sa.sin_addr.s_addr);
+	sa.sin_port = htons(port);
+	inet_pton(sa.sin_family, ip, &sa.sin_addr.s_addr);
 
-	if (connect(soc, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
+	if (connect(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
 		perror("Connect error...");
 		exit(EXIT_FAILURE);
 	}
 
 	collect_info(&info);
+
+	memcpy(data, &info, BUFSIZ);
+	send(s, data, BUFSIZ, 0);
 	
-	sprintf(data,
+	/*sprintf(data,
 		"{computerInfo:{osType:\"%s\",osRelease:\"%s\",arch:\"%s\",cpuName:\"%s\",totalMem:%d}}",
 		info.os_name, info.os_release, info.os_arch, info.cpu_name, info.memory_size); 
 	send_message(soc, data);
@@ -211,30 +217,30 @@ connected_mode(int interval)
 	sprintf(data,
 		"{networkInfo:{mac:\"%s\",ipv4:\"%s\",ipv6:\"%s\"}}",
 		info.mac_address, info.ipv4_address, info.ipv6_address); 
-	send_message(soc, data);
+		send_message(soc, data);*/
 
 	for (;;) {
 		get_cpu_usage(&cpu);
 		get_memory_usage(&mem);
-		get_network_usage(&net);
-		get_io_usage(&io);	
 
-		sprintf(data,
+		/*memcpy(data, &cpu, BUFSIZ);*/
+
+/*		sprintf(data,
 			"{usage:{cpu:{used:%lu,total:%lu},{mem:{active:%lu,inactive:%lu,free:%lu,total:%lu},swap:{used:%lu,total:%lu}},io:%lu}}",
 			cpu.used, cpu.total,
 			mem.active, mem.inactive, mem.free, mem.total,
 			mem.swap_used, mem.swap_total,
 			io.progress);
-		send_message(soc, data);
-		sleep(2);
+			send_message(soc, data);*/
+		sleep(interval);
 	}
-*/
+
 }
 
 void
 usage()
 {
-	printf("usage: eye <-s|-c> [-i <interval>]\n");
+	printf("usage: eye <-c <server_ip> | -s> [-i <interval>]\n");
 	printf("\t-s\tStandalone mode\n");
 	printf("\t-c\tConnected mode\n");
 	printf("\t-i <interval> Time (in seconds) between 2 refreshes\n");
@@ -247,7 +253,10 @@ int
 main(int argc, char **argv)
 {
 	int c;
+
+	char *ip;
 	char *it_arg;
+
 	int is_standalone = 0;
 	int is_connected = 0;
 	int is_interval = 0;
@@ -258,14 +267,16 @@ main(int argc, char **argv)
 		exit(EXIT_SUCCESS);
 	}
 
-	while ((c = getopt (argc, argv, "sci:")) != -1) {
+	while ((c = getopt (argc, argv, "c:si:")) != -1) {
 		switch (c) {
-		case 's':
-			is_standalone = 1;
-			break;
-
 		case 'c':
 			is_connected = 1;
+			if (optarg != NULL)
+				ip = strdup(optarg);
+			break;
+
+		case 's':
+			is_standalone = 1;
 			break;
 
 		case 'i':
@@ -284,8 +295,7 @@ main(int argc, char **argv)
 
 	if (is_interval)
 		interval = strtonum(it_arg, 0, 10, NULL);
-
-	if (is_interval && interval <= 0)
+	else
 		interval = INTERVAL;
 
 	if (is_connected && is_standalone) {
@@ -294,7 +304,7 @@ main(int argc, char **argv)
 	}
 
 	if (is_connected && !is_standalone)
-		connected_mode(interval);
+		connected_mode(interval, ip, DEFAULT_PORT);
 
 	if (!is_connected && is_standalone)
 		standalone_mode(interval);
