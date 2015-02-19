@@ -105,7 +105,6 @@ display_usage(int row, int interval)
 	}
 }
 
-
 void
 terminate_standalone_mode()
 {
@@ -151,20 +150,6 @@ display_sub_title(&ws, "MACHINE");
 	display_sub_title(&ws, "USAGE");
 	display_usage(17, interval);
 }
-
-/*static void
-send_message(int soc, const char *message)
-{
-	int msg_sent_len;
-
-	printf("Sending:\n");
-	printf("%s\n", message);
-	msg_sent_len = send(soc, message, strlen(message), 0);
-	printf("Message length: %d\n\n", msg_sent_len);
-	if (msg_sent_len == 0) {
-		perror("Message empty!\n");
-	}
-}*/
 
 void
 terminate_connected_mode(int socket)
