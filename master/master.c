@@ -23,7 +23,7 @@ main(void)
 		exit(EXIT_FAILURE);
 	}
 
-	bzero(&sa, sizeof(sa));
+	explicit_bzero(&sa, sizeof(sa));
 	sa.sin_family = AF_INET;
 	sa.sin_port = htons(DEFAULT_PORT);
 	sa.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -56,11 +56,13 @@ main(void)
 			break;
 		}
 
-		memset(data, 0, BUFSIZ);
-		if (recv(c, data, BUFSIZ, 0) < 0)
-			perror("Couldn't read data from client...");
-		else
-			printf("Received:\n%s\n\n", data);
+		for (;;) {
+			explicit_bzero(data, BUFSIZ);
+			if (recv(c, data, BUFSIZ, 0) < 0)
+				perror("Couldn't read data from client...");
+			else
+				printf("Received:\n%s\n\n", data);
+		}
 	}
 
 	exit(EXIT_SUCCESS);
