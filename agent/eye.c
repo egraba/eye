@@ -206,32 +206,21 @@ connected_mode(int interval, char *ip, int port)
 
 	collect_info(&info);
 
+	explicit_bzero(data, BUFSIZ);
 	memcpy(data, &info, BUFSIZ);
-	send(s, data, BUFSIZ, 0);
+
+	if (!send(s, data, BUFSIZ, 0))
+		perror("Couldn't send machine information to the server...");
 	
-	/*sprintf(data,
-		"{computerInfo:{osType:\"%s\",osRelease:\"%s\",arch:\"%s\",cpuName:\"%s\",totalMem:%d}}",
-		info.os_name, info.os_release, info.os_arch, info.cpu_name, info.memory_size); 
-	send_message(soc, data);
-
-	sprintf(data,
-		"{networkInfo:{mac:\"%s\",ipv4:\"%s\",ipv6:\"%s\"}}",
-		info.mac_address, info.ipv4_address, info.ipv6_address); 
-		send_message(soc, data);*/
-
 	for (;;) {
 		get_cpu_usage(&cpu);
 		get_memory_usage(&mem);
 
-		/*memcpy(data, &cpu, BUFSIZ);*/
+		explicit_bzero(data, BUFSIZ);
+		memcpy(data, &cpu, BUFSIZ);
 
-/*		sprintf(data,
-			"{usage:{cpu:{used:%lu,total:%lu},{mem:{active:%lu,inactive:%lu,free:%lu,total:%lu},swap:{used:%lu,total:%lu}},io:%lu}}",
-			cpu.used, cpu.total,
-			mem.active, mem.inactive, mem.free, mem.total,
-			mem.swap_used, mem.swap_total,
-			io.progress);
-			send_message(soc, data);*/
+		send(s, data, BUFSIZ, 0);
+
 		sleep(interval);
 	}
 
