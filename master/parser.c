@@ -10,27 +10,34 @@ print_raw_data(char *data, int len)
 	int i;
 	int j;
 
-	printf("Raw data:\n");
-
 	for (i = 0; i < len; i += 16) {
-		for (j = 0; j < 16; j++)
-			printf("%02X ", data[i + j]);
 		for (j = 0; j < 16; j++) {
-			if (data[i + j] == '\0')
-				printf(".");
+			if (i + j < len)
+				printf("%02X ", data[i + j]);
 			else
-				printf("%c", data[i + j]);
+				printf("   ");
+		}
+
+		for (j = 0; j < 16; j++) {
+			if (i + j < len) {
+				if (data[i + j] == '\0')
+					printf(".");
+				else
+					printf("%c", data[i + j]);
+			}
 		}
 		printf("\n");
 	}
-	printf("\n");
 }
 
 int
 parse_info(machine *info, char *data, int data_len)
 {
+	printf("--- Info message BEGIN ---\n");
 	print_raw_data(data, data_len);
+	printf("--- Info message END ---\n\n");
 
+	printf("--- Info message data ---\n");
 	info->sysname = strndup(data, SYSNAME_LEN);
 	printf("sysname:  %s\n", info->sysname);
 	data += SYSNAME_LEN;
@@ -61,6 +68,7 @@ parse_info(machine *info, char *data, int data_len)
 
 	info->physmem = atoi(strndup(data, PHYSMEM_LEN));
 	printf("physmem:  %d\n", info->physmem);
+	printf("\n");
 
 	return (0);
 }
