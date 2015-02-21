@@ -46,7 +46,8 @@ main(void)
 	int c;
 	struct sockaddr_in sa;
 	unsigned int len;
-	char data[BUFSIZ];
+
+	char *data;
 
 	if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("Socket error...");
@@ -90,8 +91,8 @@ main(void)
 			while(!kill_child) {
 				int data_len;
 
-				explicit_bzero(data, BUFSIZ);
-				data_len = recv(c, data, BUFSIZ, 0);
+				data = malloc(INFO_MSG_LEN);
+				data_len = recv(c, data, INFO_MSG_LEN, 0);
 
 				if (data_len < 0) {
 					perror("Recv error...");
@@ -102,10 +103,12 @@ main(void)
 				else {
 					machine info;
 
-					parse_info(&info, data);
+					parse_info(&info, data, INFO_MSG_LEN);
 					break;
 				}
 			}
+
+			free(data);
 			
 			close(c);
 		}

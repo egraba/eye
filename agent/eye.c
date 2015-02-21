@@ -169,7 +169,7 @@ connected_mode(int interval, char *ip, int port)
 	int s;
 	struct sockaddr_in sa;
 
-	char data[BUFSIZ];
+	char *data;
 	int idx;
 	char ncpus[NCPUS_LEN];
 	char physmem[PHYSMEM_LEN];
@@ -196,7 +196,7 @@ connected_mode(int interval, char *ip, int port)
 
 	collect_info(&info);
 
-	explicit_bzero(data, BUFSIZ);
+	data = malloc(INFO_MSG_LEN);
 
 	idx = 0;
 	memcpy(&data[idx], (&info)->sysname, SYSNAME_LEN);
@@ -224,7 +224,7 @@ connected_mode(int interval, char *ip, int port)
 	snprintf(physmem, PHYSMEM_LEN, "%d", (&info)->physmem);
 	memcpy(&data[idx], physmem, PHYSMEM_LEN);
 
-	if (!send(s, data, BUFSIZ, 0))
+	if (!send(s, data, INFO_MSG_LEN, 0))
 		perror("Couldn't send machine information to the server...");
 	
 	for (;;) {
@@ -239,6 +239,7 @@ connected_mode(int interval, char *ip, int port)
 		sleep(interval);
 	}
 
+	free(data);
 }
 
 void

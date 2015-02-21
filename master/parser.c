@@ -27,9 +27,9 @@ print_raw_data(char *data, int len)
 }
 
 int
-parse_info(machine *info, char *data)
+parse_info(machine *info, char *data, int data_len)
 {
-	print_raw_data(data, BUFSIZ);
+	print_raw_data(data, data_len);
 
 	info->sysname = strndup(data, SYSNAME_LEN);
 	printf("sysname:  %s\n", info->sysname);
