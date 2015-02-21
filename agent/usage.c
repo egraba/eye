@@ -1,4 +1,20 @@
+#include <sys/param.h>
+#include <sys/swap.h>
+#include <sys/sysctl.h>
+#include <sys/vmmeter.h>
+#include <machine/cpu.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 #include "usage.h"
+
+
+
+unsigned long cur[CPUSTATES];
+unsigned long prev[CPUSTATES];
+
+
 
 int
 get_cpu_usage(cpu_usage *cu)

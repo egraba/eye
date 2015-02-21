@@ -1,13 +1,6 @@
 #ifndef _INFO
 #define _INFO
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#include <sys/utsname.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 typedef struct {
 	char *sysname;
 	char *nodename;

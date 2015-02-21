@@ -1,3 +1,10 @@
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <sys/utsname.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "info.h"
 
 static int
