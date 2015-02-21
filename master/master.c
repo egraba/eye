@@ -1,6 +1,8 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,6 +10,32 @@
 
 #define DEFAULT_PORT 9999
 #define MAX_CLIENTS 50
+
+
+
+void terminate_master();
+void terminate_child();
+
+
+
+pid_t pid;
+int kill_child;
+
+
+
+void
+terminate_master()
+{
+	exit(EXIT_SUCCESS);
+}
+
+void
+terminate_child()
+{
+	kill_child = 1;
+}
+
+
 
 int
 main(void)
@@ -43,26 +71,31 @@ main(void)
 			exit(EXIT_FAILURE);
 		}
 
-		switch(fork()) {
-		case 0:
-			break;
-		case -1:
-			perror("Fork error...");
-			close(s);
-			exit(EXIT_FAILURE);
-		default:
-			close(s);
-			exit(EXIT_SUCCESS);
-			break;
-		}
+		pid = fork();
 
-		for (;;) {
+		if (pid == 0) {
+			kill_child = 0;
+			signal(SIGINT, terminate_child);
+			
 			explicit_bzero(data, BUFSIZ);
 			if (recv(c, data, BUFSIZ, 0) < 0)
 				perror("Couldn't read data from client...");
 			else
 				printf("Received:\n%s\n\n", data);
+			
+			close(c);
 		}
+		else if (pid < 0) {
+			perror("Fork error...");
+			close(s);
+			exit(EXIT_FAILURE);
+		}
+		else {
+			wait(NULL);
+		}
+
+		close(s);
+		exit(EXIT_SUCCESS);
 	}
 
 	exit(EXIT_SUCCESS);
