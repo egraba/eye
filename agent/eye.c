@@ -217,10 +217,12 @@ connected_mode(int interval, char *ip, int port)
 	memcpy(&data[idx], (&info)->cpuname, CPUNAME_LEN);
 	idx += CPUNAME_LEN;
 
+	explicit_bzero(ncpus, sizeof(ncpus));
 	snprintf(ncpus, NCPUS_LEN, "%d", (&info)->ncpus);
 	memcpy(&data[idx], ncpus, NCPUS_LEN);
 	idx += NCPUS_LEN;
 
+	explicit_bzero(physmem, sizeof(physmem));
 	snprintf(physmem, PHYSMEM_LEN, "%d", (&info)->physmem);
 	memcpy(&data[idx], physmem, PHYSMEM_LEN);
 
