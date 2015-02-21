@@ -62,6 +62,7 @@ main(void)
 	}
 
 	listen(s, MAX_CLIENTS);
+	printf("Listening...\n");
 
 	for (;;) {
 		len = sizeof(sa);
@@ -70,25 +71,37 @@ main(void)
 			perror("Accept error...");
 			exit(EXIT_FAILURE);
 		}
+		printf("Client accepted!\n");
 
 		pid = fork();
 
-		if (pid == 0) {
-			kill_child = 0;
-			signal(SIGINT, terminate_child);
-			
-			explicit_bzero(data, BUFSIZ);
-			if (recv(c, data, BUFSIZ, 0) < 0)
-				perror("Couldn't read data from client...");
-			else
-				printf("Received:\n%s\n\n", data);
-			
-			close(c);
-		}
-		else if (pid < 0) {
+		if (pid < 0) {
 			perror("Fork error...");
 			close(s);
 			exit(EXIT_FAILURE);
+		}
+		else if (pid == 0) {
+			kill_child = 0;
+			signal(SIGINT, terminate_child);
+			signal(SIGPIPE, terminate_child);
+		
+			while(!kill_child) {
+				int data_len;
+
+				explicit_bzero(data, BUFSIZ);
+				data_len = recv(c, data, BUFSIZ, 0);
+
+				if (data_len < 0) {
+					perror("Recv error...");
+				}
+				else if (data_len == 0) {
+					break;
+				}
+				else
+					printf("Received:\n%s\n\n", data);
+			}
+			
+			close(c);
 		}
 		else {
 			wait(NULL);
