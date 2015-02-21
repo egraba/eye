@@ -8,6 +8,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "parser.h"
+
 #define DEFAULT_PORT 9999
 #define MAX_CLIENTS 50
 
@@ -97,8 +99,12 @@ main(void)
 				else if (data_len == 0) {
 					break;
 				}
-				else
-					printf("Received:\n%s\n\n", data);
+				else {
+					machine info;
+
+					parse_info(&info, data);
+					break;
+				}
 			}
 			
 			close(c);

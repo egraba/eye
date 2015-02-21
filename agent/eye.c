@@ -168,7 +168,11 @@ connected_mode(int interval, char *ip, int port)
 {
 	int s;
 	struct sockaddr_in sa;
+
 	char data[BUFSIZ];
+	int idx;
+	char ncpus[NCPUS_LEN];
+	char physmem[PHYSMEM_LEN];
 
 	machine info;
 	cpu_usage cpu;
@@ -193,7 +197,32 @@ connected_mode(int interval, char *ip, int port)
 	collect_info(&info);
 
 	explicit_bzero(data, BUFSIZ);
-	memcpy(data, &info, BUFSIZ);
+
+	idx = 0;
+	memcpy(&data[idx], (&info)->sysname, SYSNAME_LEN);
+	idx += SYSNAME_LEN;
+
+	memcpy(&data[idx], (&info)->nodename, NODENAME_LEN);
+	idx += NODENAME_LEN;
+
+	memcpy(&data[idx], (&info)->release, RELEASE_LEN);
+	idx += RELEASE_LEN;
+
+	memcpy(&data[idx], (&info)->version, VERSION_LEN);
+	idx += VERSION_LEN;
+
+	memcpy(&data[idx], (&info)->machine, MACHINE_LEN);
+	idx += MACHINE_LEN;
+
+	memcpy(&data[idx], (&info)->cpuname, CPUNAME_LEN);
+	idx += CPUNAME_LEN;
+
+	snprintf(ncpus, NCPUS_LEN, "%d", (&info)->ncpus);
+	memcpy(&data[idx], ncpus, NCPUS_LEN);
+	idx += NCPUS_LEN;
+
+	snprintf(physmem, PHYSMEM_LEN, "%d", (&info)->physmem);
+	memcpy(&data[idx], physmem, PHYSMEM_LEN);
 
 	if (!send(s, data, BUFSIZ, 0))
 		perror("Couldn't send machine information to the server...");
