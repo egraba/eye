@@ -90,9 +90,19 @@ main(void)
 		
 			while(!kill_child) {
 				int data_len;
+				int info_msg_len;
 
-				data = malloc(INFO_MSG_LEN);
-				data_len = recv(c, data, INFO_MSG_LEN, 0);
+				info_msg_len = SYSNAME_LEN +
+					NODENAME_LEN +
+					RELEASE_LEN +
+					VERSION_LEN +
+					MACHINE_LEN +
+					CPUNAME_LEN +
+					NCPUS_LEN +
+					PHYSMEM_LEN;
+
+				data = malloc(info_msg_len);
+				data_len = recv(c, data, info_msg_len, 0);
 
 				if (data_len < 0) {
 					perror("Recv error...");
@@ -103,7 +113,7 @@ main(void)
 				else {
 					machine info;
 
-					parse_info(&info, data, INFO_MSG_LEN);
+					parse_info(&info, data, info_msg_len);
 					break;
 				}
 			}

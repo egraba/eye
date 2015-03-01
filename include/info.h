@@ -21,17 +21,6 @@ typedef struct {
 #define NCPUS_LEN 2
 #define PHYSMEM_LEN 16
 
-#define INFO_MSG_LEN (\
-SYSNAME_LEN + \
-NODENAME_LEN + \
-RELEASE_LEN + \
-VERSION_LEN + \
-MACHINE_LEN + \
-CPUNAME_LEN + \
-NCPUS_LEN + \
-PHYSMEM_LEN \
-)
-
 int collect_info(machine *m);
 
 #endif

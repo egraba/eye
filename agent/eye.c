@@ -173,6 +173,7 @@ connected_mode(int interval, char *ip, int port)
 	int idx;
 	char ncpus[NCPUS_LEN];
 	char physmem[PHYSMEM_LEN];
+	int info_msg_len;
 
 	machine info;
 	cpu_usage cpu;
@@ -196,7 +197,16 @@ connected_mode(int interval, char *ip, int port)
 
 	collect_info(&info);
 
-	data = malloc(INFO_MSG_LEN);
+	info_msg_len = SYSNAME_LEN +
+		NODENAME_LEN +
+		RELEASE_LEN +
+		VERSION_LEN +
+		MACHINE_LEN +
+		CPUNAME_LEN +
+		NCPUS_LEN +
+		PHYSMEM_LEN;
+
+	data = malloc(info_msg_len);
 
 	idx = 0;
 	memcpy(&data[idx], (&info)->sysname, SYSNAME_LEN);
@@ -226,7 +236,7 @@ connected_mode(int interval, char *ip, int port)
 	snprintf(physmem, PHYSMEM_LEN, "%d", (&info)->physmem);
 	memcpy(&data[idx], physmem, PHYSMEM_LEN);
 
-	if (!send(s, data, INFO_MSG_LEN, 0))
+	if (!send(s, data, info_msg_len, 0))
 		perror("Couldn't send machine information to the server...");
 	
 	for (;;) {
