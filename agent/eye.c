@@ -174,10 +174,13 @@ connected_mode(int interval, char *ip, int port)
 	char ncpus[NCPUS_LEN];
 	char physmem[PHYSMEM_LEN];
 	int info_msg_len;
+	int usage_msg_len;
+	char usage_data[USAGE_DATA_LEN];
 
 	machine info;
 	cpu_usage cpu;
 	memory_usage mem;
+	swap_usage swap;
 
 	if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("Socket error...");
@@ -228,25 +231,79 @@ connected_mode(int interval, char *ip, int port)
 	idx += CPUNAME_LEN;
 
 	explicit_bzero(ncpus, sizeof(ncpus));
-	snprintf(ncpus, NCPUS_LEN, "%d", (&info)->ncpus);
+	snprintf(ncpus, NCPUS_LEN, "%d", info.ncpus);
 	memcpy(&data[idx], ncpus, NCPUS_LEN);
 	idx += NCPUS_LEN;
 
 	explicit_bzero(physmem, sizeof(physmem));
-	snprintf(physmem, PHYSMEM_LEN, "%d", (&info)->physmem);
+	snprintf(physmem, PHYSMEM_LEN, "%d", info.physmem);
 	memcpy(&data[idx], physmem, PHYSMEM_LEN);
 
 	if (!send(s, data, info_msg_len, 0))
 		perror("Couldn't send machine information to the server...");
-	
+
+	/* There are 10 data which are all defined as unsigned long.*/
+	usage_msg_len = 10 * USAGE_DATA_LEN;
+
+	data = malloc(usage_msg_len);
+
 	for (;;) {
 		get_cpu_usage(&cpu);
 		get_memory_usage(&mem);
+		get_swap_usage(&swap);
 
-		explicit_bzero(data, BUFSIZ);
-		memcpy(data, &cpu, BUFSIZ);
+		idx = 0;
+		explicit_bzero(usage_data, USAGE_DATA_LEN);
+		snprintf(usage_data, USAGE_DATA_LEN, "%lu", cpu.user);
+		memcpy(&data[idx], usage_data, USAGE_DATA_LEN);
+		idx += USAGE_DATA_LEN;
 
-		send(s, data, BUFSIZ, 0);
+		explicit_bzero(usage_data, USAGE_DATA_LEN);
+		snprintf(usage_data, USAGE_DATA_LEN, "%lu", cpu.nice);
+		memcpy(&data[idx], usage_data, USAGE_DATA_LEN);
+		idx += USAGE_DATA_LEN;
+
+		explicit_bzero(usage_data, USAGE_DATA_LEN);
+		snprintf(usage_data, USAGE_DATA_LEN, "%lu", cpu.sys);
+		memcpy(&data[idx], usage_data, USAGE_DATA_LEN);
+		idx += USAGE_DATA_LEN;
+
+		explicit_bzero(usage_data, USAGE_DATA_LEN);
+		snprintf(usage_data, USAGE_DATA_LEN, "%lu", cpu.intr);
+		memcpy(&data[idx], usage_data, USAGE_DATA_LEN);
+		idx += USAGE_DATA_LEN;
+
+		explicit_bzero(usage_data, USAGE_DATA_LEN);
+		snprintf(usage_data, USAGE_DATA_LEN, "%lu", cpu.idle);
+		memcpy(&data[idx], usage_data, USAGE_DATA_LEN);
+		idx += USAGE_DATA_LEN;
+
+		explicit_bzero(usage_data, USAGE_DATA_LEN);
+		snprintf(usage_data, USAGE_DATA_LEN, "%lu", mem.vm_active);
+		memcpy(&data[idx], usage_data, USAGE_DATA_LEN);
+		idx += USAGE_DATA_LEN;
+
+		explicit_bzero(usage_data, USAGE_DATA_LEN);
+		snprintf(usage_data, USAGE_DATA_LEN, "%lu", mem.vm_total);
+		memcpy(&data[idx], usage_data, USAGE_DATA_LEN);
+		idx += USAGE_DATA_LEN;
+
+		explicit_bzero(usage_data, USAGE_DATA_LEN);
+		snprintf(usage_data, USAGE_DATA_LEN, "%lu", mem.free);
+		memcpy(&data[idx], usage_data, USAGE_DATA_LEN);
+		idx += USAGE_DATA_LEN;
+
+		explicit_bzero(usage_data, USAGE_DATA_LEN);
+		snprintf(usage_data, USAGE_DATA_LEN, "%lu", swap.used);
+		memcpy(&data[idx], usage_data, USAGE_DATA_LEN);
+		idx += USAGE_DATA_LEN;
+
+		explicit_bzero(usage_data, USAGE_DATA_LEN);
+		snprintf(usage_data, USAGE_DATA_LEN, "%lu", swap.total);
+		memcpy(&data[idx], usage_data, USAGE_DATA_LEN);
+		idx += USAGE_DATA_LEN;
+
+		send(s, data, usage_msg_len, 0);
 
 		sleep(interval);
 	}

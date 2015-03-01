@@ -72,3 +72,58 @@ parse_info(machine *info, char *data, int data_len)
 
 	return (0);
 }
+
+int
+parse_usage(cpu_usage *cpu,
+	    memory_usage *mem,
+	    swap_usage *swap,
+	    char *data,
+	    int data_len)
+{
+	printf("--- Usage message BEGIN ---\n");
+	print_raw_data(data, data_len);
+	printf("--- Usage message END ---\n\n");
+
+	printf("--- Usage message data ---\n");
+	cpu->user = strtoul(strndup(data, USAGE_DATA_LEN), NULL, 0);
+	printf("cpu_user:      %lu\n", cpu->user);
+	data += USAGE_DATA_LEN;
+
+	cpu->nice = strtoul(strndup(data, USAGE_DATA_LEN), NULL, 0);
+	printf("cpu_nice:      %lu\n", cpu->nice);
+	data += USAGE_DATA_LEN;
+
+	cpu->sys = strtoul(strndup(data, USAGE_DATA_LEN), NULL, 0);
+	printf("cpu_sys:       %lu\n", cpu->sys);
+	data += USAGE_DATA_LEN;
+
+	cpu->intr = strtoul(strndup(data, USAGE_DATA_LEN), NULL, 0);
+	printf("cpu_intr:      %lu\n", cpu->intr);
+	data += USAGE_DATA_LEN;
+
+	cpu->idle = strtoul(strndup(data, USAGE_DATA_LEN), NULL, 0);
+	printf("cpu_idle:      %lu\n", cpu->idle);
+	data += USAGE_DATA_LEN;
+
+	mem->vm_active = strtoul(strndup(data, USAGE_DATA_LEN), NULL, 0);
+	printf("mem_vm_active: %lu\n", mem->vm_active);
+	data += USAGE_DATA_LEN;
+
+	mem->vm_total = strtoul(strndup(data, USAGE_DATA_LEN), NULL, 0);
+	printf("mem_vm_total:  %lu\n", mem->vm_total);
+	data += USAGE_DATA_LEN;
+
+	mem->free = strtoul(strndup(data, USAGE_DATA_LEN), NULL, 0);
+	printf("mem_free:      %lu\n", mem->free);
+	data += USAGE_DATA_LEN;
+
+	swap->used = strtoul(strndup(data, USAGE_DATA_LEN), NULL, 0);
+	printf("swap_used:     %lu\n", swap->used);
+	data += USAGE_DATA_LEN;
+
+	swap->total = strtoul(strndup(data, USAGE_DATA_LEN), NULL, 0);
+	printf("swap_total:    %lu\n", swap->total);
+	printf("\n");
+
+	return (0);
+}

@@ -20,6 +20,8 @@ typedef struct {
 	unsigned long total;
 } swap_usage;
 
+#define USAGE_DATA_LEN 10 /* unsigned long size */
+
 int get_cpu_usage(cpu_usage *cu);
 int get_memory_usage(memory_usage *mu);
 int get_swap_usage(swap_usage *su);

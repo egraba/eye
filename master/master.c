@@ -112,9 +112,29 @@ main(void)
 				}
 				else {
 					machine info;
+					int usage_msg_len;
 
 					parse_info(&info, data, info_msg_len);
-					break;
+
+					usage_msg_len = 10 * USAGE_DATA_LEN;
+
+					data = malloc(usage_msg_len);
+					data_len = recv(c, data, usage_msg_len, 0);
+
+					if (data_len < 0) {
+						perror("Recv error...");
+					}
+					else if (data_len == 0) {
+						break;
+					}
+					else {
+						cpu_usage cpu;
+						memory_usage mem;
+						swap_usage swap;
+
+						parse_usage(&cpu, &mem, &swap, data, usage_msg_len);
+						break;
+					}
 				}
 			}
 
